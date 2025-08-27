@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# Mahidhar Portfolio Forge
 
-## Project info
+A modern, responsive portfolio website built with React and Node.js, organized in a monorepo structure with separate frontend and backend folders.
 
-**URL**: https://lovable.dev/projects/95e66bee-c559-4587-ba30-156ae58ad4da
+## Project Structure
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/95e66bee-c559-4587-ba30-156ae58ad4da) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+├── frontend/          # React frontend application
+│   ├── src/          # React components and pages
+│   ├── public/       # Static assets
+│   ├── index.html    # Main HTML file
+│   ├── package.json  # Frontend dependencies
+│   └── vite.config.ts # Vite configuration
+├── backend/          # Express.js backend API
+│   ├── server.js     # Main server file
+│   ├── package.json  # Backend dependencies
+│   └── uploads/      # File uploads directory
+├── package.json      # Root package.json for scripts
+└── README.md         # This file
 ```
 
-**Edit a file directly in GitHub**
+## Quick Start
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Install Dependencies
+```bash
+# Install all dependencies (frontend + backend)
+npm run install:all
 
-**Use GitHub Codespaces**
+# Or install individually
+npm run install:frontend
+npm run install:backend
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Development
+```bash
+# Run both frontend and backend concurrently
+npm run dev:all
 
-## What technologies are used for this project?
+# Or run individually
+npm run dev:frontend  # Starts React dev server
+npm run dev:backend   # Starts Express server
+```
 
-This project is built with:
+### Build
+```bash
+# Build frontend for production
+npm run build:frontend
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Technology Stack
 
-## How can I deploy this project?
+### Frontend
+- **Framework**: React 18.3.1 with TypeScript
+- **Build Tool**: Vite 5.4.1
+- **UI Library**: shadcn-ui (Radix UI components)
+- **Styling**: Tailwind CSS 3.4.11
+- **Form Handling**: React Hook Form with Zod validation
+- **State Management**: React Query
+- **Email Service**: EmailJS
 
-Simply open [Lovable](https://lovable.dev/projects/95e66bee-c559-4587-ba30-156ae58ad4da) and click on Share -> Publish.
+### Backend
+- **Framework**: Express.js 5.1.0
+- **Database**: MongoDB with Mongoose
+- **File Uploads**: Multer
 
-## Can I connect a custom domain to my Lovable project?
+## Features
 
-Yes, you can!
+- **Responsive Design**: Works on all device sizes
+- **Modern UI**: Built with shadcn-ui components
+- **Contact Form**: Integrated email functionality
+- **Admin Panel**: Content management interface
+- **Project Showcase**: Dynamic project portfolio
+- **Skills & Experience**: Professional background display
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Development Notes
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Frontend runs on `http://localhost:5173` (Vite default)
+- Backend runs on `http://localhost:3000` (Express default)
+- The project uses TypeScript for type safety
+- ESLint is configured for code quality
+- Tailwind CSS for styling with custom configurations
+
+## Deployment
+
+### Using Lovable
+1. Click "Share" in the top right
+2. Click "Publish"
+3. Your site will be deployed with a lovable.app domain
+4. Optionally, configure a custom domain
+
+### Manual Deployment
+1. Build the project: `npm run build:frontend`
+2. Deploy the `frontend/dist/` folder to your hosting service
+3. Set up the backend on a server (Node.js hosting required)

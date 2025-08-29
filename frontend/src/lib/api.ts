@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:4000';
+const API_BASE = 'https://portfoliomahidhar-backend.onrender.com';
 
 export const fetchContactInfo = async () => {
   const res = await fetch(`${API_BASE}/contact-info`);

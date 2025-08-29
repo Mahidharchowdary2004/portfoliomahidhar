@@ -4,7 +4,7 @@ import emailjs from '@emailjs/browser';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContactInfo } from '@/lib/api';
 
-const API_BASE = 'http://localhost:4000';
+const API_BASE = 'https://portfoliomahidhar-backend.onrender.com';
 
 // EmailJS Configuration 
 //ok

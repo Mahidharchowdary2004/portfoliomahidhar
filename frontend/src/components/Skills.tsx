@@ -3,7 +3,7 @@ import { Code2, Database, Cpu, Globe, Server } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSkills } from '@/lib/api';
 
-const API_URL = 'http://localhost:4000';
+const API_URL = 'https://portfoliomahidhar-backend.onrender.com';
 
 const iconMap = {
   cpu: <Cpu className="w-6 h-6" />,

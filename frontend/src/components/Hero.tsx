@@ -3,7 +3,7 @@ import { Github, Linkedin, Mail, Download, ArrowRight, Sparkles } from 'lucide-r
 import { useQuery } from '@tanstack/react-query';
 import { fetchContactInfo } from '@/lib/api';
 
-const API_BASE = 'http://localhost:4000';
+const API_BASE = 'https://portfoliomahidhar-backend.onrender.com';
 
 const Hero = () => {
   const { data: contactInfo } = useQuery({ queryKey: ['contactInfo'], queryFn: fetchContactInfo, initialData: { resumeUrl: '', github: '', linkedin: '', email: '', profilePictureUrl: '' } });

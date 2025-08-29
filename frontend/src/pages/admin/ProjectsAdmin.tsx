@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 
-const API_BASE = "http://localhost:4000"
+const API_BASE = "https://portfoliomahidhar-backend.onrender.com"
 const AUTH_TOKEN = "mahi@123"
 
 const ProjectsAdmin = () => {

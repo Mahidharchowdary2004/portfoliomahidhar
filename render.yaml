@@ -1,9 +1,9 @@
 services:
-  # ✅ Frontend (Static Site)
+  # Frontend (Static Site)
   - type: static
     name: portfoliomahidhar-frontend
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/build
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
     routes:
       - type: rewrite
         source: /*
@@ -25,9 +25,12 @@ services:
       - key: Referrer-Policy
         value: strict-origin-when-cross-origin
 
-  # ✅ Backend (Node.js API)
+  # Backend (Node.js API)
   - type: web
     name: portfoliomahidhar-backend
-    buildCommand: cd backend && npm install
+    buildCommand: cd backend && npm ci
     startCommand: cd backend && npm start
     plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production

@@ -1,34 +1,16 @@
 services:
-  # Frontend (Static Site)
-  - type: static
+  # Frontend (Web Service for Static Files)
+  - type: web
     name: portfoliomahidhar-frontend
-    env: static
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/dist
-    pullRequestPreviewsEnabled: true
-    routes:
-      - type: rewrite
-        source: /admin/*
-        destination: /index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      - key: Cache-Control
-        value: public, max-age=31536000, immutable
-        path: /assets/*
-      - key: Cache-Control
-        value: public, max-age=0, must-revalidate
-        path: /index.html
-      - key: Cache-Control
-        value: public, max-age=86400
-        path: /*
-      - key: X-Content-Type-Options
-        value: nosniff
-      - key: X-Frame-Options
-        value: DENY
-      - key: Referrer-Policy
-        value: strict-origin-when-cross-origin
+    env: node
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build && cd .. && npm ci
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        sync: false
 
   # Backend (Node.js API)
   - type: web

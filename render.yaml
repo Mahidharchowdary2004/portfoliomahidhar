@@ -1,0 +1,35 @@
+services:
+  # Frontend (Web Service for Static Files)
+  - type: web
+    name: portfoliomahidhar-frontend
+    env: node
+    plan: free
+    buildCommand: |
+      echo "Building frontend..."
+      cd frontend
+      npm ci --only=production
+      npm run build
+      echo "Frontend build complete"
+      cd ..
+      echo "Installing root dependencies..."
+      npm ci --only=production
+      echo "Build process complete"
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        sync: false
+
+  # Backend (Node.js API)
+  - type: web
+    name: portfoliomahidhar-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm ci --only=production
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        sync: false

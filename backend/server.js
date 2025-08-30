@@ -227,7 +227,38 @@ app.put('/experiences', authenticate, async (req, res) => {
   await Experience.insertMany(req.body);
   res.json({ success: true });
 });
-// Root route - Beautiful Status Page
+
+
+// Contact Info endpoints
+app.get('/contact-info', async (req, res) => {
+  const info = await ContactInfo.findOne();
+  res.json(info || {});
+});
+app.put('/contact-info', authenticate, async (req, res) => {
+  const contactInfo = req.body;
+
+  if (!contactInfo.email || !contactInfo.github || !contactInfo.linkedin) {
+    return res.status(400).json({ error: 'Contact info must have an email, github, and linkedin.' });
+  }
+
+  await ContactInfo.deleteMany({});
+  await ContactInfo.create(req.body);
+  res.json({ success: true });
+});
+
+// About endpoints
+app.get('/about', async (req, res) => {
+  const about = await About.findOne();
+  res.json(about || {});
+});
+app.put('/about', authenticate, async (req, res) => {
+  const about = req.body;
+  await About.deleteMany({});
+  await About.create(about);
+  res.json({ success: true });
+});
+
+// ✅ Root route - Beautiful Status Page (put this at the bottom)
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -284,37 +315,6 @@ app.get('/', (req, res) => {
     </body>
     </html>
   `);
-});
-
-// ⬇️ Keep this as it is
-
-// Contact Info endpoints
-app.get('/contact-info', async (req, res) => {
-  const info = await ContactInfo.findOne();
-  res.json(info || {});
-});
-app.put('/contact-info', authenticate, async (req, res) => {
-  const contactInfo = req.body;
-
-  if (!contactInfo.email || !contactInfo.github || !contactInfo.linkedin) {
-    return res.status(400).json({ error: 'Contact info must have an email, github, and linkedin.' });
-  }
-
-  await ContactInfo.deleteMany({});
-  await ContactInfo.create(req.body);
-  res.json({ success: true });
-});
-
-// About endpoints
-app.get('/about', async (req, res) => {
-  const about = await About.findOne();
-  res.json(about || {});
-});
-app.put('/about', authenticate, async (req, res) => {
-  const about = req.body;
-  await About.deleteMany({});
-  await About.create(about);
-  res.json({ success: true });
 });
 
 app.listen(PORT, () => {

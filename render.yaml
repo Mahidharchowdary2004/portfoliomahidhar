@@ -4,8 +4,17 @@ services:
     name: portfoliomahidhar-frontend
     env: node
     plan: free
-    buildCommand: cd frontend && npm ci && npm run build && cd .. && npm ci
-    startCommand: npm start
+    buildCommand: |
+      echo "Building frontend..."
+      cd frontend
+      npm ci --only=production
+      npm run build
+      echo "Frontend build complete"
+      cd ..
+      echo "Installing root dependencies..."
+      npm ci --only=production
+      echo "Build process complete"
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -17,7 +26,7 @@ services:
     name: portfoliomahidhar-backend
     env: node
     plan: free
-    buildCommand: cd backend && npm ci
+    buildCommand: cd backend && npm ci --only=production
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV

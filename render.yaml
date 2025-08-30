@@ -1,9 +1,10 @@
 services:
+  # ✅ Frontend Service
   - type: web
     name: portfoliomahidhar-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/build   # ✅ change dist → build
+    staticPublishPath: frontend/build
     routes:
       - type: rewrite
         source: /*
@@ -24,3 +25,11 @@ services:
         value: DENY
       - key: Referrer-Policy
         value: strict-origin-when-cross-origin
+
+  # ✅ Backend Service
+  - type: web
+    name: portfoliomahidhar-backend
+    env: node # or "docker"/"java" depending on backend
+    buildCommand: cd backend && npm install   # ❗ change if Spring Boot
+    startCommand: cd backend && npm start     # ❗ change if Spring Boot
+    plan: free

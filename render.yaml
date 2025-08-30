@@ -1,8 +1,7 @@
 services:
-  # ✅ Frontend Service
-  - type: web
+  # ✅ Frontend (Static Site)
+  - type: static
     name: portfoliomahidhar-frontend
-    env: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/build
     routes:
@@ -26,10 +25,9 @@ services:
       - key: Referrer-Policy
         value: strict-origin-when-cross-origin
 
-  # ✅ Backend Service
+  # ✅ Backend (Node.js API)
   - type: web
     name: portfoliomahidhar-backend
-    env: node # or "docker"/"java" depending on backend
-    buildCommand: cd backend && npm install   # ❗ change if Spring Boot
-    startCommand: cd backend && npm start     # ❗ change if Spring Boot
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
     plan: free

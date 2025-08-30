@@ -227,6 +227,66 @@ app.put('/experiences', authenticate, async (req, res) => {
   await Experience.insertMany(req.body);
   res.json({ success: true });
 });
+// Root route - Beautiful Status Page
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Backend API Status</title>
+      <style>
+        body {
+          margin: 0;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+          color: #fff;
+          text-align: center;
+        }
+        .card {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          max-width: 500px;
+        }
+        h1 {
+          font-size: 2.5rem;
+          margin-bottom: 10px;
+        }
+        p {
+          font-size: 1.2rem;
+          margin: 0;
+        }
+        .status {
+          margin-top: 20px;
+          padding: 10px 20px;
+          display: inline-block;
+          background: #00c853;
+          border-radius: 30px;
+          font-weight: bold;
+          font-size: 1rem;
+          color: #fff;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h1>✅ Backend API is Working!</h1>
+        <p>Server is running successfully on port <strong>${PORT}</strong></p>
+        <div class="status">Status: Online</div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// ⬇️ Keep this as it is
 
 // Contact Info endpoints
 app.get('/contact-info', async (req, res) => {

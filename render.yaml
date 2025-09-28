@@ -1,26 +1,21 @@
 services:
-  # Frontend (Web Service for Static Files)
+  # Frontend (Static Site)
   - type: web
     name: portfoliomahidhar-frontend
-    env: node
+    env: static
     plan: free
     buildCommand: |
-      echo "Installing root dependencies..."
-      npm ci --only=production
       echo "Building frontend..."
       cd frontend
       npm ci --only=production
       npm run build
       echo "Frontend build complete"
       ls -la dist/
-      cd ..
-      echo "Build process complete"
-    startCommand: node server.js
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        sync: false
+    staticPublishPath: ./frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
   # Backend (Node.js API)
   - type: web

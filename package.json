@@ -12,9 +12,7 @@
     "install:backend": "cd backend && npm install",
     "install:all": "npm run install:frontend && npm run install:backend"
   },
-  "dependencies": {
-    "express": "^4.21.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "concurrently": "^9.2.0"
   }

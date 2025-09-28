@@ -1,8 +1,8 @@
 services:
-  # Frontend (Static Site)
+  # Frontend (Web Service for Static Files)
   - type: web
     name: portfoliomahidhar-frontend
-    env: static
+    env: node
     plan: free
     buildCommand: |
       echo "Building frontend..."
@@ -11,11 +11,18 @@ services:
       npm run build
       echo "Frontend build complete"
       ls -la dist/
-    staticPublishPath: ./frontend/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+      echo "Checking _redirects file..."
+      cat public/_redirects
+      cd ..
+      echo "Installing root dependencies..."
+      npm ci --only=production
+      echo "Build process complete"
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        sync: false
 
   # Backend (Node.js API)
   - type: web

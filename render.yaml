@@ -5,14 +5,15 @@ services:
     env: node
     plan: free
     buildCommand: |
+      echo "Installing root dependencies..."
+      npm ci --only=production
       echo "Building frontend..."
       cd frontend
       npm ci --only=production
       npm run build
       echo "Frontend build complete"
+      ls -la dist/
       cd ..
-      echo "Installing root dependencies..."
-      npm ci --only=production
       echo "Build process complete"
     startCommand: node server.js
     envVars:

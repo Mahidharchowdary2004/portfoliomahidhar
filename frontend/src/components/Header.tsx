@@ -58,6 +58,13 @@ const Header = () => {
             </button>
             
             <a 
+              href="/admin" 
+              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
+            >
+              Manage
+            </a>
+            
+            <a 
               href="#contact" 
               className="bg-gradient-to-r from-purple-600 to-orange-500 text-white px-6 py-2 rounded-full hover:shadow-lg transition-shadow"
             >

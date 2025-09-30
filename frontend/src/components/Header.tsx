@@ -1,9 +1,12 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { User, Mail, Github, Linkedin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, Github, Linkedin, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -38,6 +41,9 @@ const Header = () => {
             <a href="#certifications" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
               Certifications
             </a>
+            <a href="#achievements" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+              Competitions
+            </a>
             <a href="#services" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
               Services
             </a>
@@ -57,12 +63,16 @@ const Header = () => {
               {isDarkMode ? '☀️' : '🌙'}
             </button>
             
-            <a 
-              href="/admin" 
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
+            {/* Admin Sign In Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/admin/login')}
+              className="border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground"
             >
-              Manage
-            </a>
+              <Settings className="h-4 w-4 mr-2" />
+              Admin
+            </Button>
             
             <a 
               href="#contact" 

@@ -40,6 +40,16 @@ const certSchema = new mongoose.Schema({
 });
 const Certification = mongoose.model('Certification', certSchema);
 
+// Achievement Model
+const achievementSchema = new mongoose.Schema({
+  title: String,
+  date: String,
+  description: String,
+  icon: String,
+  image: String,
+});
+const Achievement = mongoose.model('Achievement', achievementSchema);
+
 // Project Model
 const projectSchema = new mongoose.Schema({
   title: String,
@@ -179,6 +189,29 @@ app.put('/certifications', authenticate, async (req, res) => {
 
   await Certification.deleteMany({});
   await Certification.insertMany(req.body);
+  res.json({ success: true });
+});
+
+// Achievements endpoints
+app.get('/achievements', async (req, res) => {
+  const achievements = await Achievement.find();
+  res.json(achievements);
+});
+app.put('/achievements', authenticate, async (req, res) => {
+  const achievements = req.body;
+
+  if (!Array.isArray(achievements)) {
+    return res.status(400).json({ error: 'Request body must be an array of achievements.' });
+  }
+
+  for (const a of achievements) {
+    if (!a.title) {
+      return res.status(400).json({ error: 'Each achievement must have a title.' });
+    }
+  }
+
+  await Achievement.deleteMany({});
+  await Achievement.insertMany(achievements);
   res.json({ success: true });
 });
 

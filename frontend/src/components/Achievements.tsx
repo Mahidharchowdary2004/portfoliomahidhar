@@ -1,6 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { fetchAchievements } from '@/lib/api';
+import React, { useState, useEffect } from 'react';
 import { Award } from 'lucide-react';
+import { fetchAchievements } from '@/lib/api';
+
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || 
+   window.location.hostname === '127.0.0.1' || 
+   window.location.hostname === '[::1]' ||
+   window.location.hostname.includes('localhost'));
+const API_URL = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 
 interface Achievement {
   title: string;
@@ -20,8 +27,6 @@ const Achievements: React.FC = () => {
 
   if (loading) return null;
   const isEmpty = !items || items.length === 0;
-  const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
-  const API_URL = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 
   return (
     <section id="achievements" className="py-20 bg-gray-50 dark:bg-gray-800">
@@ -69,12 +74,14 @@ const Achievements: React.FC = () => {
                               <h5 className="font-semibold text-gray-900 dark:text-white">Competition</h5>
                             </div>
                             <div className="space-y-2">
-                              <img
-                                src={a.image ? (a.image.startsWith('/uploads') ? `${API_URL}${a.image}` : a.image) : '/placeholder.svg'}
-                                alt={a.title}
-                                className="w-72 h-auto rounded-lg border border-gray-200 dark:border-gray-700"
-                                onError={e => (e.currentTarget.src = '/placeholder.svg')}
-                              />
+                              {a.image && (
+                                <img
+                                  src={a.image.startsWith('/uploads') ? `${API_URL}${a.image}` : a.image}
+                                  alt={a.title}
+                                  className="w-72 h-auto rounded-lg border border-gray-200 dark:border-gray-700"
+                                  onError={e => (e.currentTarget.src = '/placeholder.svg')}
+                                />
+                              )}
                               <p className="text-sm text-gray-600 dark:text-gray-400">
                                 {a.title}<br />
                                 {a.date ? <>Date: {a.date}</> : null}
@@ -105,5 +112,3 @@ const Achievements: React.FC = () => {
 };
 
 export default Achievements;
-
-

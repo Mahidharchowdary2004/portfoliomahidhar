@@ -22,6 +22,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
+    // Clear any potentially invalid auth state
+    localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_auth_time');
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
@@ -29,8 +32,3 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 };
 
 export default ProtectedRoute;
-
-
-
-
-

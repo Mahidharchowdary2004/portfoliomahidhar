@@ -3,7 +3,12 @@ import { Award } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCertifications } from '@/lib/api';
 
-const API_URL = 'https://portfoliomahidhar-backend.onrender.com';
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || 
+   window.location.hostname === '127.0.0.1' || 
+   window.location.hostname === '[::1]' ||
+   window.location.hostname.includes('localhost'));
+const API_URL = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 
 const Certifications = () => {
   const { data: certifications } = useQuery({ queryKey: ['certifications'], queryFn: fetchCertifications, initialData: [] });

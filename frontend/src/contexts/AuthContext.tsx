@@ -20,7 +20,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Check if user is already authenticated (stored in localStorage)
     const authStatus = localStorage.getItem('admin_auth');
     if (authStatus === 'true') {
-      setIsAuthenticated(true);
+      // Verify that the session is still valid by checking timestamp
+      const authTime = localStorage.getItem('admin_auth_time');
+      if (authTime) {
+        const now = new Date().getTime();
+        const authTimestamp = parseInt(authTime);
+        // Session expires after 1 hour (60 ms)
+        if (now - authTimestamp < 60) {
+          setIsAuthenticated(true);
+        } else {
+          // Session expired, clear auth data
+          localStorage.removeItem('admin_auth');
+          localStorage.removeItem('admin_auth_time');
+        }
+      }
     }
     setIsLoading(false);
   }, []);
@@ -35,6 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       localStorage.setItem('admin_auth', 'true');
+      localStorage.setItem('admin_auth_time', new Date().getTime().toString());
       setIsLoading(false);
       return true;
     }
@@ -46,6 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_auth_time');
   };
 
   return (
@@ -62,4 +77,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

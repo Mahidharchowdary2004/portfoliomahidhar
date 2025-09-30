@@ -2,6 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchAchievements, saveAchievements, uploadImage } from '@/lib/api';
 
+// Import API_BASE for image URL construction
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || 
+   window.location.hostname === '127.0.0.1' || 
+   window.location.hostname === '[::1]' ||
+   window.location.hostname.includes('localhost'));
+const API_BASE = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
+
 const AUTH_TOKEN = 'mahi@123';
 
 const AchievementsAdmin: React.FC = () => {
@@ -213,7 +221,7 @@ const AchievementsAdmin: React.FC = () => {
                     </label>
                     {item.image && (
                       <div className="relative group">
-                        <img src={item.image} alt="Competition thumbnail" className="w-20 h-20 object-cover rounded-xl shadow-lg" />
+                        <img src={item.image.startsWith('/uploads') ? `${API_BASE}${item.image}` : item.image} alt="Competition thumbnail" className="w-20 h-20 object-cover rounded-xl shadow-lg" />
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl flex items-center justify-center">
                           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

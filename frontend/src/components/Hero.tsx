@@ -3,9 +3,6 @@ import { Github, Linkedin, Mail, Download, ArrowRight, Sparkles } from 'lucide-r
 import { useQuery } from '@tanstack/react-query';
 import { fetchContactInfo } from '@/lib/api';
 
-const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
-const API_BASE = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
-
 const Hero = () => {
   const { data: contactInfo } = useQuery({ queryKey: ['contactInfo'], queryFn: fetchContactInfo, initialData: { resumeUrl: '', github: '', linkedin: '', email: '', profilePictureUrl: '' } });
 
@@ -28,7 +25,7 @@ const Hero = () => {
                   Hello, I'm{' '}
                   <span className="relative">
                     <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-orange-500 bg-clip-text text-transparent">
-                      MAHIDHAR
+                      Mahidhar
                     </span>
                     <div className="absolute -bottom-2 left-0 w-full h-3 bg-gradient-to-r from-purple-200 to-orange-200 -skew-x-12 opacity-30"></div>
                   </span>
@@ -91,7 +88,7 @@ const Hero = () => {
               {/* Main profile container */}
               <div className="absolute inset-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full overflow-hidden shadow-2xl border-4 border-white/50 dark:border-gray-700/50">
                 <img 
-                  src={contactInfo.profilePictureUrl ? `${API_BASE}${contactInfo.profilePictureUrl}` : "https://i.postimg.cc/c1X9NyD6/IMG-0172.jpg"} 
+                  src={contactInfo.profilePictureUrl ? `${import.meta.env.VITE_API_BASE || 'https://portfoliomahidhar-backend.onrender.com'}${contactInfo.profilePictureUrl}` : "https://i.postimg.cc/c1X9NyD6/IMG-0172.jpg"} 
                   alt="Mahidhar's Profile Picture"
                   className="w-full h-full object-cover"
                 />

@@ -221,7 +221,7 @@ const Contact = () => {
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-purple-600 dark:focus:ring-purple-400 focus:border-transparent transition-colors"
-                  placeholder="email@example.com"
+                  placeholder=""
                 />
               </div>
               <div>
@@ -236,7 +236,7 @@ const Contact = () => {
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-purple-600 dark:focus:ring-purple-400 focus:border-transparent transition-colors"
-                  placeholder="What's this about?"
+                  placeholder=""
                 />
               </div>
               <div>
@@ -251,7 +251,7 @@ const Contact = () => {
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-purple-600 dark:focus:ring-purple-400 focus:border-transparent transition-colors"
-                  placeholder="Tell me about your project..."
+                  placeholder=""
                 ></textarea>
               </div>
               

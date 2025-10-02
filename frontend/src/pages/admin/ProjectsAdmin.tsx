@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import { fetchProjects } from "@/lib/api"
 
-const API_BASE = "https://portfoliomahidhar-backend.onrender.com"
+const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+const API_BASE = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 const AUTH_TOKEN = "mahi@123"
 
 const ProjectsAdmin = () => {
@@ -15,9 +17,7 @@ const ProjectsAdmin = () => {
   const [uploadingIndex, setUploadingIndex] = useState(null)
 
   useEffect(() => {
-    fetch(`${API_BASE}/projects`)
-      .then((res) => res.json())
-      .then(setProjects)
+    fetchProjects().then(setProjects)
   }, [])
 
   const updateItem = (index, field, value) => {
@@ -354,7 +354,7 @@ const ProjectsAdmin = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        d="M10 4h6m0 0v6m0-6L10 14"
                       />
                     </svg>
                     <span>Live Demo</span>

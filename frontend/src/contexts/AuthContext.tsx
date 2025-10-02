@@ -10,7 +10,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Simple password-only auth; in production, use a proper backend
-const ADMIN_PASSWORD = 'Mahidhar';
+const ADMIN_PASSWORD = 'Mahidhar_Chowdary';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

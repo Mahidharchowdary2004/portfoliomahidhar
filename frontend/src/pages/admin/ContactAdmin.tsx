@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import { fetchContactInfo } from "@/lib/api"
 
-const API_BASE = "https://portfoliomahidhar-backend.onrender.com"
-const AUTH_TOKEN = "mahi@123"
+const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+const API_BASE = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 
 const ContactAdmin = () => {
   const queryClient = useQueryClient()
@@ -22,13 +23,11 @@ const ContactAdmin = () => {
   const [success, setSuccess] = useState("")
 
   useEffect(() => {
-    fetch(`${API_BASE}/contact-info`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data) {
-          setContactInfo((prev) => ({ ...prev, ...data }))
-        }
-      })
+    fetchContactInfo().then((data) => {
+      if (data) {
+        setContactInfo((prev) => ({ ...prev, ...data }))
+      }
+    })
   }, [])
 
   const handleChange = (e) => {
@@ -45,7 +44,7 @@ const ContactAdmin = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${AUTH_TOKEN}`,
+          Authorization: `Bearer mahi@123`,
         },
         body: JSON.stringify(contactInfo),
       })
@@ -74,7 +73,7 @@ const ContactAdmin = () => {
       const res = await fetch(`${API_BASE}/upload`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`,
+          Authorization: `Bearer mahi@123`,
         },
         body: formData,
       })
@@ -353,33 +352,32 @@ const ContactAdmin = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
               <span>Contact Details</span>
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.keys(contactInfo)
-                .filter((key) => key !== "profilePictureUrl")
-                .map((key) => (
+              {Object.entries(contactInfo)
+                .filter(([key]) => key !== "profilePictureUrl")
+                .map(([key, value]) => (
                   <div key={key} className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                      {getFieldIcon(key)}
-                      <span>{getFieldLabel(key)}</span>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {getFieldLabel(key)}
                     </label>
                     <div className="relative">
-                      <input
-                        type={key === "email" ? "email" : key === "phone" ? "tel" : "url"}
-                        name={key}
-                        value={contactInfo[key] || ""}
-                        onChange={handleChange}
-                        placeholder={getFieldPlaceholder(key)}
-                        className="w-full px-4 py-3 pl-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                      />
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
                         {getFieldIcon(key)}
                       </div>
+                      <input
+                        type={key === "email" ? "email" : key === "phone" ? "tel" : "text"}
+                        name={key}
+                        value={value}
+                        onChange={handleChange}
+                        placeholder={getFieldPlaceholder(key)}
+                        className="block w-full pl-10 pr-3 py-3 bg-white/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                      />
                     </div>
                   </div>
                 ))}
@@ -387,8 +385,8 @@ const ContactAdmin = () => {
           </div>
 
           {/* Preview Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/50">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center space-x-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"

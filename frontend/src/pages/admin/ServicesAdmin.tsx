@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchServices, saveServices } from '@/lib/api';
 
-const API_BASE = 'https://portfoliomahidhar-backend.onrender.com';
+const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+const API_BASE = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 const AUTH_TOKEN = 'mahi@123';
 
 interface Service {

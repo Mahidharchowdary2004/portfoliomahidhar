@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { fetchExperiences, saveExperiences } from "@/lib/api"
 
-const API_BASE = "https://portfoliomahidhar-backend.onrender.com"
+const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+const API_BASE = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
 const AUTH_TOKEN = "mahi@123"
 
 const ExperienceAdmin = () => {
@@ -528,7 +529,7 @@ const ExperienceAdmin = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                           <path
                             strokeLinecap="round"

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Github, Linkedin } from 'lucide-react';
+import { User, Mail, Github, Linkedin, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -21,7 +22,7 @@ const Header = () => {
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
-            NALLAPANENI MAHIDHAR
+            Nallapaneni Mahidhar
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
@@ -61,6 +62,17 @@ const Header = () => {
             >
               {isDarkMode ? '☀️' : '🌙'}
             </button>
+            
+            {/* Admin Sign In Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/admin/login')}
+              className="border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Admin
+            </Button>
             
             <a 
               href="#contact" 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Linkedin, Mail, Settings } from 'lucide-react';
+import { Github, Linkedin, Mail } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContactInfo } from '@/lib/api';
 
@@ -27,10 +27,7 @@ const Footer = () => {
               <a href="#experience" className="block text-gray-400 hover:text-white transition-colors">Experience</a>
               <a href="#portfolio" className="block text-gray-400 hover:text-white transition-colors">Portfolio</a>
               <a href="#contact" className="block text-gray-400 hover:text-white transition-colors">Contact</a>
-              <a href="/admin" className="block text-gray-400 hover:text-white transition-colors flex items-center">
-                <Settings className="w-4 h-4 mr-2" />
-                Admin Panel
-              </a>
+              <a href="/admin" className="block text-gray-400 hover:text-white transition-colors">Manage</a>
             </div>
           </div>
           

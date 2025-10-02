@@ -7,17 +7,17 @@ services:
     buildCommand: |
       echo "Building frontend..."
       cd frontend
-      npm ci --only=production
+      npm ci
       npm run build
       echo "Frontend build complete"
       ls -la dist/
       echo "Checking _redirects file..."
       cat public/_redirects
       cd ..
-      echo "Installing root dependencies..."
-      npm ci --only=production
-      echo "Build process complete"
-    startCommand: node server.js
+    startCommand: |
+      cd frontend
+      npm install -g serve
+      serve -s dist -l $PORT
     envVars:
       - key: NODE_ENV
         value: production
@@ -29,7 +29,7 @@ services:
     name: portfoliomahidhar-backend
     env: node
     plan: free
-    buildCommand: cd backend && npm ci --only=production
+    buildCommand: cd backend && npm ci
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV

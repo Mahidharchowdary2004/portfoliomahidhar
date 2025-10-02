@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Award } from 'lucide-react';
+import { Award, Trophy, Medal, Star, Crown, Target } from 'lucide-react';
 import { fetchAchievements } from '@/lib/api';
 
-const isLocalhost = typeof window !== 'undefined' && 
-  (window.location.hostname === 'localhost' || 
-   window.location.hostname === '127.0.0.1' || 
-   window.location.hostname === '[::1]' ||
-   window.location.hostname.includes('localhost'));
+const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
 const API_URL = isLocalhost ? 'http://localhost:4000' : 'https://portfoliomahidhar-backend.onrender.com';
+
+// Icon mapping for competitions
+const iconMap = {
+  trophy: Trophy,
+  award: Award,
+  medal: Medal,
+  star: Star,
+  crown: Crown,
+  target: Target
+};
 
 interface Achievement {
   title: string;
@@ -51,7 +57,10 @@ const Achievements: React.FC = () => {
                   <div key={idx} className="flex items-center justify-center">
                     <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 max-w-2xl w-full relative">
                       <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-purple-600 to-orange-500 rounded-full flex items-center justify-center">
-                        <Award className="w-4 h-4 text-white" />
+                        {(() => {
+                          const IconComponent = iconMap[a.icon as keyof typeof iconMap] || Trophy;
+                          return <IconComponent className="w-4 h-4 text-white" />;
+                        })()}
                       </div>
                       <div className="space-y-4">
                         <div className="flex items-start justify-between">
@@ -70,7 +79,10 @@ const Achievements: React.FC = () => {
                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
                             <div className="flex items-center space-x-2 mb-2">
-                              <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                              {(() => {
+                                const IconComponent = iconMap[a.icon as keyof typeof iconMap] || Trophy;
+                                return <IconComponent className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
+                              })()}
                               <h5 className="font-semibold text-gray-900 dark:text-white">Competition</h5>
                             </div>
                             <div className="space-y-2">

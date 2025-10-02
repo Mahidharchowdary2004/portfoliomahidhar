@@ -99,3 +99,118 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom animations for admin panel and frontend consistency */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounceSubtle 2s infinite;
+  }
+
+  .glass-morphism {
+    @apply backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-600 via-purple-500 to-orange-500 bg-clip-text text-transparent;
+  }
+
+  .admin-card-hover {
+    @apply transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  .admin-button-primary {
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300;
+  }
+
+  .admin-button-secondary {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300;
+  }
+
+  .admin-input-focus {
+    @apply focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Enhanced backdrop blur for better glass effect */
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+}
+
+/* Improved gradient backgrounds */
+.bg-gradient-admin {
+  background: linear-gradient(135deg, 
+    rgba(147, 51, 234, 0.1) 0%, 
+    rgba(59, 130, 246, 0.1) 50%, 
+    rgba(16, 185, 129, 0.1) 100%);
+}
+
+/* Custom scrollbar for admin panel */
+.admin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(147, 51, 234, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+.admin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.3);
+  border-radius: 3px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.5);
+}

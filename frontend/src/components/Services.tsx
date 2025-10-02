@@ -1,28 +1,54 @@
-
 import React from 'react';
-import { Code, FileText, Briefcase } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchServices } from '@/lib/api';
+import { Code, FileText, Briefcase, Icon } from 'lucide-react';
+
+// Map icon names to actual Lucide icons
+const iconMap: Record<string, React.ComponentType<any>> = {
+  Code,
+  FileText,
+  Briefcase,
+};
 
 const Services = () => {
-  const services = [
-    {
-      icon: Code,
-      title: "Web Design",
-      description: "Creating modern, responsive, and user-friendly web interfaces with a focus on user experience and visual appeal.",
-      features: ["Responsive Design", "Modern Frameworks", "Cross-browser Compatible"]
-    },
-    {
-      icon: FileText,
-      title: "Data Analysis",
-      description: "Transforming raw data into actionable insights using advanced analytics techniques and visualization tools.",
-      features: ["Statistical Analysis", "Data Visualization", "Machine Learning", "Predictive Modeling"]
-    },
-    {
-      icon: Briefcase,
-      title: "Software Development",
-      description: "Building robust, scalable software solutions using modern technologies and best development practices.",
-      features: ["Full-stack Development", "Database Design", "API Development", "Quality Assurance"]
-    }
-  ];
+  const { data: services = [], isLoading, error } = useQuery({
+    queryKey: ['services'],
+    queryFn: fetchServices,
+  });
+
+  if (isLoading) {
+    return (
+      <section id="services" className="py-20 bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              My <span className="bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">Services</span>
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Loading services...
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="services" className="py-20 bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              My <span className="bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">Services</span>
+            </h2>
+            <p className="text-lg text-red-500 dark:text-red-400 max-w-2xl mx-auto">
+              Error loading services. Please try again later.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="services" className="py-20 bg-white dark:bg-gray-900">
@@ -37,8 +63,8 @@ const Services = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => {
-            const IconComponent = service.icon;
+          {services.map((service: any, index: number) => {
+            const IconComponent = iconMap[service.icon] || Code;
             return (
               <div
                 key={index}
@@ -57,7 +83,7 @@ const Services = () => {
                 </p>
                 
                 <ul className="space-y-2">
-                  {service.features.map((feature, featureIndex) => (
+                  {service.features.map((feature: string, featureIndex: number) => (
                     <li key={featureIndex} className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-orange-500 rounded-full"></div>
                       <span className="text-sm text-gray-600 dark:text-gray-400">{feature}</span>

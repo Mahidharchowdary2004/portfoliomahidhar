@@ -257,96 +257,14 @@ const AboutAdmin = () => {
     }
   };
 
-  const testApiConnection = async () => {
-    try {
-      console.log('Testing API connection to:', `${API_BASE}/about`);
-      const response = await fetch(`${API_BASE}/about`);
-      console.log('API Response status:', response.status);
-      console.log('API Response headers:', response.headers);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('API Response data:', data);
-        setSuccess('API connection successful! Data: ' + JSON.stringify(data));
-      } else {
-        const errorText = await response.text();
-        console.log('API Error response:', errorText);
-        setError(`API Error: ${response.status} - ${errorText}`);
-      }
-    } catch (err) {
-      console.log('API Connection error:', err);
-      setError(`Connection failed: ${err.message}`);
-    }
-  };
 
-  const pushDefaultData = async () => {
-    setError('');
-    setSuccess('');
-    setIsSaving(true);
-    
-    try {
-      const defaultData: AboutData = {
-        title: 'About Me',
-        subtitle: 'Passionate about transforming data into insights and building innovative solutions.',
-        description: `I'm a Computer Science Engineering student at KL University (2022–2026), specializing in Data Science & Big Data Analytics. My journey in tech is fueled by a passion for AI, embedded systems, and the transformative power of data-driven solutions.`,
-        roles: [
-          {
-            title: 'Software Development Engineer',
-            description: 'I specialize in designing, building, and optimizing scalable web applications with a focus on user experience and performance. I enjoy turning complex problems into elegant, user-friendly solutions by bridging the gap between functionality and design.',
-            icon: 'code2'
-          },
-          {
-            title: 'Web Developer',
-            description: 'Building responsive, accessible, and scalable web applications using modern tools and best practices.',
-            icon: 'briefcase'
-          }
-        ],
-        education: {
-          degree: 'B.Tech – Computer Science & Engineering',
-          university: 'KL University, Vijayawada',
-          year: '2022–2026',
-          gpa: '9.11/10',
-          focusAreas: [
-            'Machine Learning & AI',
-            'Big Data Analytics',
-            'Software Engineering',
-            'Data Structures & Algorithms'
-          ]
-        }
-      };
-
-      // Send mapped payload to backend
-      const defaultPayload: any = {
-        intro: defaultData.subtitle,
-        description: defaultData.description,
-        roles: defaultData.roles,
-        focusAreas: defaultData.education?.focusAreas || [],
-        education: [
-          {
-            degree: defaultData.education?.degree || '',
-            school: defaultData.education?.university || '',
-            details: defaultData.education?.gpa ? `GPA: ${defaultData.education.gpa}${defaultData.education?.year ? ` • ${defaultData.education.year}` : ''}` : (defaultData.education?.year || ''),
-          },
-        ],
-      };
-
-      await saveAbout(defaultPayload, AUTH_TOKEN);
-      setAboutData(defaultData);
-      setSuccess('Default about data has been pushed to the database successfully!');
-      queryClient.invalidateQueries({ queryKey: ['about'] });
-    } catch (err) {
-      setError(err.message || 'Failed to push default data. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold gradient-text">
             About Section Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -355,49 +273,9 @@ const AboutAdmin = () => {
         </div>
         <div className="flex items-center space-x-3">
           <button
-            onClick={testApiConnection}
-            className="group relative px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <span>Test API</span>
-          </button>
-          <button
-            onClick={pushDefaultData}
-            disabled={isSaving}
-            className="group relative px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2"
-          >
-            {isSaving ? (
-              <>
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                <span>Pushing...</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-                <span>Push Default Data</span>
-              </>
-            )}
-          </button>
-          <button
             onClick={saveData}
             disabled={isSaving}
-            className="group relative px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2"
+            className="group relative px-6 py-3 admin-button-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2"
           >
             {isSaving ? (
               <>
@@ -461,7 +339,7 @@ const AboutAdmin = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Main Content */}
         <div className="space-y-6">
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6">
+          <div className="glass-morphism rounded-2xl shadow-xl admin-card-hover p-6">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -502,7 +380,7 @@ const AboutAdmin = () => {
           </div>
 
           {/* Professional Roles */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6">
+          <div className="glass-morphism rounded-2xl shadow-xl admin-card-hover p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -587,7 +465,7 @@ const AboutAdmin = () => {
 
         {/* Right Column - Education */}
         <div className="space-y-6">
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6">
+          <div className="glass-morphism rounded-2xl shadow-xl admin-card-hover p-6">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />

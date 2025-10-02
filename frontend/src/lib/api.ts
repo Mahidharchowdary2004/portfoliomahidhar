@@ -99,6 +99,30 @@ export const fetchAchievements = async () => {
   }
 };
 
+export const fetchServices = async () => {
+  const res = await fetch(`${API_BASE}/services`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch services');
+  }
+  return res.json();
+};
+
+export const saveServices = async (services, token) => {
+  const res = await fetch(`${API_BASE}/services`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(services),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to save services');
+  }
+  return res.json();
+};
+
 export const saveAchievements = async (achievements, token) => {
   const res = await fetch(`${API_BASE}/achievements`, {
     method: 'PUT',

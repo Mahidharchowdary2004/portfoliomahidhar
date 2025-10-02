@@ -115,6 +115,15 @@ const aboutSchema = new mongoose.Schema({
 });
 const About = mongoose.model('About', aboutSchema);
 
+// Services Model
+const serviceSchema = new mongoose.Schema({
+  icon: String,
+  title: String,
+  description: String,
+  features: [String],
+});
+const Service = mongoose.model('Service', serviceSchema);
+
 // Set up multer for image uploads
 const UPLOADS_DIR = path.resolve('uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR);
@@ -288,6 +297,29 @@ app.put('/about', authenticate, async (req, res) => {
   const about = req.body;
   await About.deleteMany({});
   await About.create(about);
+  res.json({ success: true });
+});
+
+// Services endpoints
+app.get('/services', async (req, res) => {
+  const services = await Service.find();
+  res.json(services);
+});
+app.put('/services', authenticate, async (req, res) => {
+  const services = req.body;
+
+  if (!Array.isArray(services)) {
+    return res.status(400).json({ error: 'Request body must be an array of services.' });
+  }
+
+  for (const service of services) {
+    if (!service.title || !service.description) {
+      return res.status(400).json({ error: 'Each service must have a title and description.' });
+    }
+  }
+
+  await Service.deleteMany({});
+  await Service.insertMany(req.body);
   res.json({ success: true });
 });
 

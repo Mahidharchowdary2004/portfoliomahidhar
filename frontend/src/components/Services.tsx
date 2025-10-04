@@ -68,7 +68,7 @@ const Services = () => {
             return (
               <div
                 key={index}
-                className="group bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl hover:bg-gradient-to-br hover:from-purple-50 hover:to-orange-50 dark:hover:from-purple-900/20 dark:hover:to-orange-900/20 transition-all duration-300 hover:shadow-xl"
+                className="group bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(147,51,234,0.4),0_0_60px_rgba(249,115,22,0.2)] hover:-translate-y-1"
               >
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-orange-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <IconComponent className="w-8 h-8 text-white" />

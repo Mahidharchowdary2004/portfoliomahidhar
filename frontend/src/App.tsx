@@ -31,6 +31,13 @@ const App = () => (
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
+            <Route path="/about" element={<Index />} />
+            <Route path="/skills" element={<Index />} />
+            <Route path="/experience" element={<Index />} />
+            <Route path="/certifications" element={<Index />} />
+            <Route path="/achievements" element={<Index />} />
+            <Route path="/services" element={<Index />} />
+            <Route path="/projects" element={<Index />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<Login />} />

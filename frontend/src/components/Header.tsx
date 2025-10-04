@@ -42,7 +42,7 @@ const Header = () => {
               Certifications
             </a>
             <a href="#achievements" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-              Competitions
+              Achievements
             </a>
             <a href="#services" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
               Services
@@ -50,19 +50,9 @@ const Header = () => {
             <a href="#projects" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
               Projects
             </a>
-            <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-              Contact
-            </a>
           </div>
 
           <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
-              {isDarkMode ? '☀️' : '🌙'}
-            </button>
-            
             {/* Admin Sign In Button */}
             <Button
               variant="outline"

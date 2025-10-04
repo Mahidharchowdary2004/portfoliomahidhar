@@ -31,7 +31,7 @@ const Experience = () => {
             <div className="space-y-12">
               {experiences.map((exp, idx) => (
                 <div className="flex items-center justify-center" key={idx}>
-                  <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 max-w-2xl w-full relative">
+                  <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 max-w-2xl w-full relative transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(147,51,234,0.4),0_0_60px_rgba(249,115,22,0.2)] hover:-translate-y-1">
                     <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-purple-600 to-orange-500 rounded-full flex items-center justify-center">
                       <Brain className="w-4 h-4 text-white" />
                     </div>

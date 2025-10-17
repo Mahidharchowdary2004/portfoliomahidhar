@@ -53,7 +53,17 @@ const Skills = () => {
             >
               {/* Icon + Title */}
               <div className="flex items-center mb-4">
-                <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400 mr-4">
+                <div className="
+                  relative
+                  p-3 
+                  bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-800/20 
+                  rounded-lg 
+                  text-purple-600 dark:text-purple-400 
+                  mr-4
+                  transition-all duration-500 ease-out
+                  group-hover:scale-110
+                  group-hover:rotate-3
+                ">
                   {iconMap[category.icon] || <Code2 className="w-6 h-6" />}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
@@ -67,15 +77,46 @@ const Skills = () => {
                   ? category.skills.split(',').map((skill, skillIndex) => (
                       <span
                         key={skillIndex}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-purple-100 dark:hover:bg-purple-800/40 transition-colors"
+                        className="
+                          px-3 py-1 
+                          bg-gray-100 dark:bg-gray-700 
+                          text-gray-700 dark:text-gray-300 
+                          rounded-full 
+                          text-sm 
+                          transition-all duration-300 ease-out
+                          hover:bg-gradient-to-r hover:from-purple-100 hover:to-orange-100 
+                          dark:hover:from-purple-800/40 dark:hover:to-orange-800/40
+                          hover:scale-105
+                          hover:shadow-md
+                          border border-transparent
+                          hover:border-purple-200 dark:hover:border-purple-500/30
+                        "
                       >
                         {skill.trim()}
                       </span>
                     ))
                   : null}
               </div>
+
+              {/* Subtle hover effect overlay */}
+              <div className="
+                absolute 
+                inset-0 
+                rounded-2xl 
+                bg-gradient-to-r from-purple-600/0 via-purple-600/5 to-orange-500/0 
+                opacity-0 
+                transition-opacity duration-500 ease-out
+                hover:opacity-100
+                pointer-events-none
+              "></div>
             </div>
           ))}
+        </div>
+
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-200 dark:bg-purple-800 rounded-full blur-3xl opacity-20"></div>
+          <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-orange-200 dark:bg-orange-800 rounded-full blur-3xl opacity-20"></div>
         </div>
       </div>
     </section>

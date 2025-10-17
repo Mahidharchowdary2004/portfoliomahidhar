@@ -4,7 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchContactInfo } from '@/lib/api';
 
 const Hero = () => {
-  const { data: contactInfo } = useQuery({ queryKey: ['contactInfo'], queryFn: fetchContactInfo, initialData: { resumeUrl: '', github: '', linkedin: '', email: '', profilePictureUrl: '' } });
+  const { data: contactInfo, isLoading } = useQuery({ 
+    queryKey: ['contactInfo'], 
+    queryFn: fetchContactInfo, 
+    initialData: { resumeUrl: '', github: '', linkedin: '', email: '', profilePictureUrl: '' } 
+  });
+
+  // Use a consistent default image to prevent flickering
+  const profileImageUrl = contactInfo?.profilePictureUrl 
+    ? `${import.meta.env.VITE_API_BASE || 'https://portfoliomahidhar-backend.onrender.com'}${contactInfo.profilePictureUrl}`
+    : "https://i.postimg.cc/c1X9NyD6/IMG-0172.jpg";
 
   return (
     <section id="home" className="min-h-screen flex items-center bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20 relative overflow-hidden">
@@ -67,7 +76,7 @@ const Hero = () => {
               </a>
             </div>
 
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-4">
               <a href={contactInfo.github} className="group p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
                 <Github className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-purple-600" />
               </a>
@@ -76,6 +85,21 @@ const Hero = () => {
               </a>
               <a href={`mailto:${contactInfo.email}`} className="group p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
                 <Mail className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-orange-500" />
+              </a>
+              {/* CodeChef and LeetCode links with actual logos */}
+              <a href="https://www.codechef.com/users/klu_2200032856" target="_blank" rel="noopener noreferrer" className="group p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+                <img 
+                  src="/icons8-codechef-96.png" 
+                  alt="CodeChef" 
+                  className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-green-500" 
+                />
+              </a>
+              <a href="https://leetcode.com/u/KLU_2200032856/" target="_blank" rel="noopener noreferrer" className="group p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+                <img 
+                  src="/icons8-leetcode-24.png" 
+                  alt="LeetCode" 
+                  className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-yellow-500" 
+                />
               </a>
             </div>
           </div>
@@ -88,7 +112,7 @@ const Hero = () => {
               {/* Main profile container */}
               <div className="absolute inset-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full overflow-hidden shadow-2xl border-4 border-white/50 dark:border-gray-700/50">
                 <img 
-                  src={contactInfo.profilePictureUrl ? `${import.meta.env.VITE_API_BASE || 'https://portfoliomahidhar-backend.onrender.com'}${contactInfo.profilePictureUrl}` : "https://i.postimg.cc/c1X9NyD6/IMG-0172.jpg"} 
+                  src={profileImageUrl} 
                   alt="Mahidhar's Profile Picture"
                   className="w-full h-full object-cover"
                 />

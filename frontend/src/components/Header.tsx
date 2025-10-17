@@ -59,6 +59,7 @@ const Header = () => {
               size="sm"
               onClick={() => navigate('/admin/login')}
               className="border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground"
+              data-testid="admin-btn"
             >
               <Settings className="h-4 w-4 mr-2" />
               Admin

@@ -183,6 +183,7 @@ const Login: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      data-testid="toggle-password"
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all duration-200 hover:scale-110 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-600/50"
                       disabled={isLoading}
                     >
@@ -197,6 +198,7 @@ const Login: React.FC = () => {
 
               <Button
                 type="submit"
+                data-testid="login-submit"
                 className="w-full relative overflow-hidden bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-6 rounded-xl shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-500 transform hover:scale-105 group"
                 disabled={isLoading}
               >

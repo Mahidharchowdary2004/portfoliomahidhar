@@ -22,7 +22,7 @@ const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
 
     // Simulate authentication - replace with your actual auth logic
     setTimeout(() => {
-      if (credentials.password === "Mahidhar") {
+      if (credentials.password === "Mahidhar_Chowdary") {
         onLogin()
       } else {
         alert("Invalid password.")

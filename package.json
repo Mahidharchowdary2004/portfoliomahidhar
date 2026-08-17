@@ -1,0 +1,13 @@
+{
+  "name": "portfolio-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix portfolio-backend && npm install --prefix portfolio-frontend-react",
+    "dev": "concurrently \"npm run dev --prefix portfolio-backend\" \"npm run dev --prefix portfolio-frontend-react\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
+

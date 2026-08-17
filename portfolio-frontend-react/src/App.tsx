@@ -50,6 +50,29 @@ export default function App() {
 function MainApp() {
   const profile = useResource('/profile', defaultProfile);
 
+  // Load Google Analytics dynamically if the Measurement ID is provided
+  useEffect(() => {
+    const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+    if (gaId && gaId.trim() !== '') {
+      if (document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) return;
+
+      const script1 = document.createElement('script');
+      script1.async = true;
+      script1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+      document.head.appendChild(script1);
+
+      const script2 = document.createElement('script');
+      script2.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', '${gaId}', { page_path: window.location.pathname });
+      `;
+      document.head.appendChild(script2);
+    }
+  }, []);
+
   useEffect(() => {
     const design = profile.design || 'lavender';
     if (design === 'lavender') {

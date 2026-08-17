@@ -21,6 +21,20 @@ function getSessionId(): string {
 // Fire-and-forget analytics event. Never throws, never blocks the UI —
 // a tracking failure should never be visible to the visitor.
 export function track(type: 'pageview' | 'click', path: string, label = ''): void {
+  // Forward to Google Analytics if available
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    if (type === 'pageview') {
+      (window as any).gtag('event', 'screen_view', {
+        screen_name: path,
+      });
+    } else if (type === 'click') {
+      (window as any).gtag('event', 'click', {
+        event_category: path,
+        event_label: label,
+      });
+    }
+  }
+
   if (!API_BASE) return;
   fetch(`${API_BASE}/track`, {
     method: 'POST',

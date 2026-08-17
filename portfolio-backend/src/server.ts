@@ -55,6 +55,9 @@ app.use('/api/insights', insightsRoutes);
 
 app.get('/api/health', (_req: Request, res: Response) => res.json({ status: 'ok' }));
 
+// --- Redirect root to /admin ---
+app.get('/', (_req: Request, res: Response) => res.redirect('/admin'));
+
 // --- Serve the admin panel as static files at /admin ---
 app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 

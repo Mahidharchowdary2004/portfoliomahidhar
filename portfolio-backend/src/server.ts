@@ -34,7 +34,9 @@ app.use(cors({
     if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(new Error('Not allowed by CORS'));
+    const err = new Error('Not allowed by CORS') as Error & { status?: number };
+    err.status = 403;
+    return callback(err);
   }
 }));
 
@@ -63,7 +65,9 @@ app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 
 // --- Error handler (keeps error shape consistent as JSON) ---
 app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err);
+  if (err.message !== 'Not allowed by CORS') {
+    console.error(err);
+  }
   res.status(err.status || 500).json({ error: err.message || 'Server error' });
 });
 

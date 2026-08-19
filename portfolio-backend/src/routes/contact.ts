@@ -97,171 +97,177 @@ router.post('/', async (req: Request, res: Response) => {
       process.env.SMTP_PASS !== 'your-gmail-app-password';
 
     if (hasSmtpConfig && recipientEmail) {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        }
-      });
+      // Send email in background — never block the response
+      try {
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: Number(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          }
+        });
 
-      const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>New Portfolio Message</title>
-        <style>
-          body {
-            background-color: ${themeColors.bg};
-            color: ${themeColors.text};
-            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-          }
-          .email-wrapper {
-            width: 100%;
-            background-color: ${themeColors.bg};
-            padding: 30px 0;
-          }
-          .email-container {
-            width: 95%;
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: ${themeColors.bg};
-            border-radius: 26px;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 9px 9px 18px ${themeColors.shadowDark}, -9px -9px 18px ${themeColors.shadowLight};
-            padding: 28px;
-            box-sizing: border-box;
-          }
-          .header {
-            text-align: center;
-            border-bottom: 2px solid ${themeColors.shadowDark};
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-          }
-          .header-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: ${themeColors.text};
-            letter-spacing: 0.5px;
-          }
-          .header-title span {
-            color: ${themeColors.accent};
-          }
-          .header-subtitle {
-            font-size: 11px;
-            font-weight: 600;
-            color: ${themeColors.textDim};
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 4px;
-          }
-          .label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: ${themeColors.textDim};
-            font-weight: 700;
-            margin-bottom: 4px;
-          }
-          .value {
-            font-size: 15px;
-            color: ${themeColors.text};
-            margin-bottom: 20px;
-            font-weight: 600;
-          }
-          .message-box {
-            background: ${themeColors.bg};
-            border-radius: 18px;
-            box-shadow: inset 4px 4px 8px ${themeColors.shadowDark}, inset -4px -4px 8px ${themeColors.shadowLight};
-            padding: 20px;
-            font-size: 14px;
-            color: ${themeColors.text};
-            margin-top: 10px;
-            margin-bottom: 28px;
-            white-space: pre-wrap;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-          .btn-container {
-            text-align: center;
-            margin-bottom: 24px;
-          }
-          .btn {
-            background: linear-gradient(135deg, ${themeColors.accent}, ${themeColors.accent3});
-            color: #FFFFFF !important;
-            padding: 12px 28px;
-            border-radius: 100px;
-            font-weight: 700;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 4px 4px 8px ${themeColors.shadowDark}, -4px -4px 8px ${themeColors.shadowLight};
-          }
-          .footer {
-            font-size: 11px;
-            color: ${themeColors.textDim};
-            text-align: center;
-            border-top: 1px solid rgba(200, 208, 224, 0.4);
-            padding-top: 16px;
-            margin-top: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="email-wrapper">
-          <div class="email-container">
-            <div class="header">
-              <div class="header-title">mahidhar<span>.</span>dev</div>
-              <div class="header-subtitle">contact notification</div>
-            </div>
-            
-            <div class="label">Sender Name</div>
-            <div class="value">${escapeHtml(name)}</div>
-            
-            <div class="label">Email Address</div>
-            <div class="value">
-              <a href="mailto:${escapeHtml(email)}" style="color: ${themeColors.accent}; text-decoration: none; border-bottom: 1px dashed ${themeColors.accent};">${escapeHtml(email)}</a>
-            </div>
-            
-            <div class="label">Message</div>
-            <div class="message-box">${escapeHtml(message).replace(/\n/g, '<br>')}</div>
-            
-            <div class="btn-container">
-              <a href="mailto:${escapeHtml(email)}?subject=Re: Portfolio contact" class="btn">Reply to Recruiter</a>
-            </div>
-            
-            <div class="footer">
-              This email was automatically generated and sent from your portfolio site backend.
+        const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Portfolio Message</title>
+          <style>
+            body {
+              background-color: ${themeColors.bg};
+              color: ${themeColors.text};
+              font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              line-height: 1.6;
+            }
+            .email-wrapper {
+              width: 100%;
+              background-color: ${themeColors.bg};
+              padding: 30px 0;
+            }
+            .email-container {
+              width: 95%;
+              max-width: 500px;
+              margin: 0 auto;
+              background-color: ${themeColors.bg};
+              border-radius: 26px;
+              border: 1px solid rgba(255, 255, 255, 0.8);
+              box-shadow: 9px 9px 18px ${themeColors.shadowDark}, -9px -9px 18px ${themeColors.shadowLight};
+              padding: 28px;
+              box-sizing: border-box;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 2px solid ${themeColors.shadowDark};
+              padding-bottom: 16px;
+              margin-bottom: 24px;
+            }
+            .header-title {
+              font-size: 22px;
+              font-weight: 700;
+              color: ${themeColors.text};
+              letter-spacing: 0.5px;
+            }
+            .header-title span {
+              color: ${themeColors.accent};
+            }
+            .header-subtitle {
+              font-size: 11px;
+              font-weight: 600;
+              color: ${themeColors.textDim};
+              text-transform: uppercase;
+              letter-spacing: 1.5px;
+              margin-top: 4px;
+            }
+            .label {
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 1.5px;
+              color: ${themeColors.textDim};
+              font-weight: 700;
+              margin-bottom: 4px;
+            }
+            .value {
+              font-size: 15px;
+              color: ${themeColors.text};
+              margin-bottom: 20px;
+              font-weight: 600;
+            }
+            .message-box {
+              background: ${themeColors.bg};
+              border-radius: 18px;
+              box-shadow: inset 4px 4px 8px ${themeColors.shadowDark}, inset -4px -4px 8px ${themeColors.shadowLight};
+              padding: 20px;
+              font-size: 14px;
+              color: ${themeColors.text};
+              margin-top: 10px;
+              margin-bottom: 28px;
+              white-space: pre-wrap;
+              border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            .btn-container {
+              text-align: center;
+              margin-bottom: 24px;
+            }
+            .btn {
+              background: linear-gradient(135deg, ${themeColors.accent}, ${themeColors.accent3});
+              color: #FFFFFF !important;
+              padding: 12px 28px;
+              border-radius: 100px;
+              font-weight: 700;
+              font-size: 14px;
+              text-decoration: none;
+              display: inline-block;
+              box-shadow: 4px 4px 8px ${themeColors.shadowDark}, -4px -4px 8px ${themeColors.shadowLight};
+            }
+            .footer {
+              font-size: 11px;
+              color: ${themeColors.textDim};
+              text-align: center;
+              border-top: 1px solid rgba(200, 208, 224, 0.4);
+              padding-top: 16px;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-wrapper">
+            <div class="email-container">
+              <div class="header">
+                <div class="header-title">mahidhar<span>.</span>dev</div>
+                <div class="header-subtitle">contact notification</div>
+              </div>
+              
+              <div class="label">Sender Name</div>
+              <div class="value">${escapeHtml(name)}</div>
+              
+              <div class="label">Email Address</div>
+              <div class="value">
+                <a href="mailto:${escapeHtml(email)}" style="color: ${themeColors.accent}; text-decoration: none; border-bottom: 1px dashed ${themeColors.accent};">${escapeHtml(email)}</a>
+              </div>
+              
+              <div class="label">Message</div>
+              <div class="message-box">${escapeHtml(message).replace(/\n/g, '<br>')}</div>
+              
+              <div class="btn-container">
+                <a href="mailto:${escapeHtml(email)}?subject=Re: Portfolio contact" class="btn">Reply to Recruiter</a>
+              </div>
+              
+              <div class="footer">
+                This email was automatically generated and sent from your portfolio site backend.
+              </div>
             </div>
           </div>
-        </div>
-      </body>
-      </html>
-      `;
+        </body>
+        </html>
+        `;
 
-      const mailOptions = {
-        from: `"${name}" <${process.env.SMTP_USER}>`,
-        to: recipientEmail,
-        replyTo: email,
-        subject: `[mahidhar] New Message from ${name}`,
-        text: `You received a new message from your portfolio contact form:\n\n` +
-          `Name: ${name}\n` +
-          `Email: ${email}\n\n` +
-          `Message:\n${message}\n\n` +
-          `—\nThis email was sent automatically from your portfolio site backend.`,
-        html: htmlContent
-      };
+        const mailOptions = {
+          from: `"${name}" <${process.env.SMTP_USER}>`,
+          to: recipientEmail,
+          replyTo: email,
+          subject: `[mahidhar] New Message from ${name}`,
+          text: `You received a new message from your portfolio contact form:\n\n` +
+            `Name: ${name}\n` +
+            `Email: ${email}\n\n` +
+            `Message:\n${message}\n\n` +
+            `—\nThis email was sent automatically from your portfolio site backend.`,
+          html: htmlContent
+        };
 
-      await transporter.sendMail(mailOptions);
-      console.log(`Email notification sent successfully to ${recipientEmail}`);
+        await transporter.sendMail(mailOptions);
+        console.log(`Email notification sent successfully to ${recipientEmail}`);
+      } catch (emailError) {
+        // Log the error but DON'T fail the request — message is already saved in DB
+        console.error('Email sending failed (message saved in DB):', emailError);
+      }
     } else {
-      console.log('SMTP is not configured or using default placeholders in .env; saved message in database only.');
+      console.log('SMTP is not configured; saved message in database only.');
     }
 
     res.status(201).json({
@@ -269,7 +275,7 @@ router.post('/', async (req: Request, res: Response) => {
       id: newMessage._id
     });
   } catch (error) {
-    console.error('Error handling contact form submission:', error);
+    console.error('Error saving contact form submission:', error);
     res.status(500).json({ error: 'Failed to send message. Please try again later.' });
   }
 });

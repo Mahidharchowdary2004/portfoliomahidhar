@@ -1,6 +1,7 @@
 import { useResource } from '../hooks/useResource';
 import { useSectionTracking } from '../hooks/useSectionTracking';
 import { defaultProfile } from '../data/defaults';
+import { track } from '../api/client';
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -24,6 +25,51 @@ export default function Hero() {
             <div className="hero-actions">
               <a className="btn btn-primary" href="#projects">View my work</a>
               <a className="btn btn-ghost" href="#contact">Get in touch</a>
+            </div>
+
+            <div className="hero-socials">
+              {profile.linkedin && (
+                <a 
+                  href={profile.linkedin} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hero-social-link"
+                  onClick={() => track('click', 'hero', 'social-linkedin')}
+                >
+                  LinkedIn
+                </a>
+              )}
+              {profile.github && (
+                <a 
+                  href={profile.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hero-social-link"
+                  onClick={() => track('click', 'hero', 'social-github')}
+                >
+                  GitHub
+                </a>
+              )}
+              {profile.resumeUrl && (
+                <a 
+                  href={profile.resumeUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hero-social-link"
+                  onClick={() => track('click', 'hero', 'resume-download')}
+                >
+                  Résumé
+                </a>
+              )}
+              {profile.email && (
+                <a 
+                  href={`mailto:${profile.email}`} 
+                  className="hero-social-link"
+                  onClick={() => track('click', 'hero', 'contact-email')}
+                >
+                  Email
+                </a>
+              )}
             </div>
           </div>
           <div className="glass hero-photo-card">

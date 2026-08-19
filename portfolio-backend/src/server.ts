@@ -16,6 +16,7 @@ import achievementsRoutes from './routes/achievements';
 import uploadRoutes from './routes/upload';
 import trackRoutes from './routes/track';
 import insightsRoutes from './routes/insights';
+import contactRoutes from './routes/contact';
 
 const app = express();
 app.set('trust proxy', true);
@@ -54,6 +55,7 @@ app.use('/api/achievements', achievementsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/track', trackRoutes);
 app.use('/api/insights', insightsRoutes);
+app.use('/api/contact', contactRoutes);
 
 app.get('/api/health', (_req: Request, res: Response) => res.json({ status: 'ok' }));
 

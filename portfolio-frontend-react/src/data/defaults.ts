@@ -19,7 +19,7 @@ export const defaultProfile: Profile = {
   location: 'Bengaluru, India',
   experienceLabel: '6 years',
   focus: 'Backend & Infra',
-  availability: 'Open to work',
+  availability: 'Available for Internship, Full-Time, Remote, Hybrid, Relocation',
   email: 'hello@mahidhar.dev',
   github: 'https://github.com/yourusername',
   linkedin: 'https://linkedin.com/in/yourusername',

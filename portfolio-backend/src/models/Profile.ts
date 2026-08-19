@@ -28,7 +28,7 @@ const ProfileSchema = new Schema<IProfile>({
   location: { type: String, default: '' },
   experienceLabel: { type: String, default: '' },
   focus: { type: String, default: '' },
-  availability: { type: String, default: 'Open to work' },
+  availability: { type: String, default: 'Available for Internship, Full-Time, Remote, Hybrid, Relocation' },
   email: { type: String, default: '' },
   github: { type: String, default: '' },
   linkedin: { type: String, default: '' },

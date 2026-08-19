@@ -18,7 +18,17 @@
 
 .hidden{display:none !important;}
 
-html{scroll-behavior:smooth;}
+html{
+  scroll-behavior:smooth;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
 
 body{
   background:var(--bg);
@@ -28,6 +38,8 @@ body{
   overflow-x:hidden;
   position:relative;
   min-height:100vh;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 /* Neumorphic soft UI has no glowing background art */
@@ -112,7 +124,7 @@ nav a:hover, nav a:focus-visible{color:var(--accent);}
 }
 .hero-grid{
   display:grid;
-  grid-template-columns:1.1fr 0.9fr;
+  grid-template-columns:1.15fr 0.85fr;
   gap:56px;
   align-items:center;
   width:100%;
@@ -163,6 +175,30 @@ h1 .accent{
   gap:14px;
   flex-wrap:wrap;
 }
+.hero-socials{
+  display:flex;
+  gap:16px;
+  margin-top:28px;
+  flex-wrap:wrap;
+}
+.hero-social-link{
+  display:inline-flex;
+  align-items:center;
+  padding:8px 18px;
+  border-radius:100px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text-dim);
+  text-decoration:none;
+  box-shadow:4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  transition:all 0.2s ease;
+  background:var(--bg);
+}
+.hero-social-link:hover, .hero-social-link:focus-visible{
+  color:var(--accent);
+  box-shadow:inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  transform:translateY(1px);
+}
 .btn{
   padding:13px 26px;
   border-radius:100px;
@@ -198,12 +234,15 @@ h1 .accent{
 .hero-photo-card{
   padding:0;
   overflow:hidden;
-  min-height:360px;
+  min-height:320px;
+  max-height:460px;
+  max-width:368px;
   aspect-ratio:4 / 5;
   display:flex;
   align-items:center;
   justify-content:center;
   background:var(--bg);
+  justify-self:center;
 }
 .hero-photo-card img{
   width:100%;

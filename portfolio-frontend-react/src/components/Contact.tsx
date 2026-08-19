@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useResource } from '../hooks/useResource';
 import { useSectionTracking } from '../hooks/useSectionTracking';
 import { defaultProfile } from '../data/defaults';
-import { track } from '../api/client';
+import { track, API_BASE } from '../api/client';
 import Reveal from './Reveal';
 
 export default function Contact() {
@@ -12,14 +12,31 @@ export default function Contact() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setStatus('sending');
     track('click', 'contact', 'contact-form-submit');
 
-    const subject = `Portfolio contact from ${name || 'a visitor'}`;
-    const body = `${message}\n\n— ${name}${email ? ` (${email})` : ''}`;
-    window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    try {
+      const res = await fetch(`${API_BASE}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to send');
+      }
+
+      setStatus('success');
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch {
+      setStatus('error');
+    }
   }
 
   return (
@@ -70,18 +87,30 @@ export default function Contact() {
             <div className="form-row">
               <label>
                 Name
-                <input type="text" value={name} onChange={e => setName(e.target.value)} required />
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required disabled={status === 'sending'} />
               </label>
               <label>
                 Email
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'sending'} />
               </label>
             </div>
             <label>
               Message
-              <textarea rows={4} value={message} onChange={e => setMessage(e.target.value)} required />
+              <textarea rows={4} value={message} onChange={e => setMessage(e.target.value)} required disabled={status === 'sending'} />
             </label>
-            <button type="submit" className="btn btn-primary">Send message</button>
+            <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+              {status === 'sending' ? 'Sending...' : 'Send message'}
+            </button>
+            {status === 'success' && (
+              <p style={{ color: 'var(--accent)', fontSize: '14px', marginTop: '12px', fontWeight: 'bold' }}>
+                ✓ Message sent successfully! I will get back to you soon.
+              </p>
+            )}
+            {status === 'error' && (
+              <p style={{ color: 'var(--danger)', fontSize: '14px', marginTop: '12px', fontWeight: 'bold' }}>
+                ✗ Failed to send message. Please try again.
+              </p>
+            )}
           </form>
         </Reveal>
       </div>

@@ -455,6 +455,8 @@ function bindForm(key, config, editingId) {
         cancelBtn.addEventListener('click', () => loadResourcePanel(key));
     }
 }
+let currentStart = '';
+let currentEnd = '';
 async function loadInsightsPanel() {
     const panel = document.getElementById('panel-insights');
     panel.innerHTML = `
@@ -462,18 +464,124 @@ async function loadInsightsPanel() {
       <div><h2>Insights</h2><p>Traffic, geography, and engagement on your portfolio. Company names are best-effort, resolved from visitor IP addresses — reliable for corporate/VPN traffic, generic ISP names for home connections.</p></div>
       <button class="btn btn-ghost btn-small" id="refreshInsights">Refresh</button>
     </div>
+    
+    <div class="date-filter-row glass" style="display:flex;align-items:center;gap:16px;padding:12px 20px;margin-bottom:20px;border-radius:12px;flex-wrap:wrap;">
+      <div class="date-filter-group" style="display:flex;gap:8px;">
+        <button class="filter-btn active" data-range="today">Today</button>
+        <button class="filter-btn" data-range="yesterday">Yesterday</button>
+        <button class="filter-btn" data-range="custom">Custom Range</button>
+      </div>
+      <div class="custom-date-container hidden" id="customDateWrap" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <label style="font-size:12.5px;color:var(--text-dim);display:flex;align-items:center;gap:6px;font-family:var(--font-body);">
+          From:
+          <input type="date" id="customDateFrom" class="glass-input">
+        </label>
+        <label style="font-size:12.5px;color:var(--text-dim);display:flex;align-items:center;gap:6px;font-family:var(--font-body);">
+          To:
+          <input type="date" id="customDateTo" class="glass-input">
+        </label>
+      </div>
+    </div>
+
     <div id="insightsBody">Loading…</div>
   `;
-    document.getElementById('refreshInsights').addEventListener('click', loadInsightsPanel);
+    document.getElementById('refreshInsights').addEventListener('click', () => {
+        refreshInsightsData();
+    });
+    const filterBtns = panel.querySelectorAll('.filter-btn');
+    const customDateWrap = document.getElementById('customDateWrap');
+    const customDateFrom = document.getElementById('customDateFrom');
+    const customDateTo = document.getElementById('customDateTo');
+    // Set date picker defaults to local today
+    const todayLocal = new Date();
+    const yyyy = todayLocal.getFullYear();
+    const mm = String(todayLocal.getMonth() + 1).padStart(2, '0');
+    const dd = String(todayLocal.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    customDateFrom.value = todayStr;
+    customDateFrom.max = todayStr;
+    customDateTo.value = todayStr;
+    customDateTo.max = todayStr;
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const range = btn.dataset.range;
+            if (range === 'custom') {
+                customDateWrap.classList.remove('hidden');
+            }
+            else {
+                customDateWrap.classList.add('hidden');
+            }
+            updateDateRangeAndFetch();
+        });
+    });
+    customDateFrom.addEventListener('change', () => {
+        // Ensure From date is not after To date
+        if (customDateFrom.value && customDateTo.value && customDateFrom.value > customDateTo.value) {
+            customDateTo.value = customDateFrom.value;
+        }
+        updateDateRangeAndFetch();
+    });
+    customDateTo.addEventListener('change', () => {
+        // Ensure To date is not before From date
+        if (customDateFrom.value && customDateTo.value && customDateTo.value < customDateFrom.value) {
+            customDateFrom.value = customDateTo.value;
+        }
+        updateDateRangeAndFetch();
+    });
+    // Perform initial fetch
+    updateDateRangeAndFetch();
+}
+function updateDateRangeAndFetch() {
+    const panel = document.getElementById('panel-insights');
+    const activeBtn = panel.querySelector('.filter-btn.active');
+    const range = (activeBtn === null || activeBtn === void 0 ? void 0 : activeBtn.dataset.range) || 'today';
+    let start = '';
+    let end = '';
+    const now = new Date();
+    if (range === 'today') {
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).toISOString();
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).toISOString();
+    }
+    else if (range === 'yesterday') {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        start = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0, 0).toISOString();
+        end = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999).toISOString();
+    }
+    else if (range === 'custom') {
+        const customDateFrom = document.getElementById('customDateFrom');
+        const customDateTo = document.getElementById('customDateTo');
+        const fromStr = customDateFrom.value;
+        const toStr = customDateTo.value;
+        if (!fromStr || !toStr)
+            return;
+        const [fY, fM, fD] = fromStr.split('-').map(Number);
+        const [tY, tM, tD] = toStr.split('-').map(Number);
+        start = new Date(fY, fM - 1, fD, 0, 0, 0, 0).toISOString();
+        end = new Date(tY, tM - 1, tD, 23, 59, 59, 999).toISOString();
+    }
+    currentStart = start;
+    currentEnd = end;
+    fetchAndRenderInsights(start, end);
+}
+function refreshInsightsData() {
+    fetchAndRenderInsights(currentStart, currentEnd);
+}
+async function fetchAndRenderInsights(start, end) {
     const body = document.getElementById('insightsBody');
-    let summary, pages, companies, locations, clicks;
+    body.innerHTML = '<div style="color:var(--text-dim);">Loading insights data…</div>';
+    let summary, pages, companies, locations, clicks, submissions;
     try {
-        [summary, pages, companies, locations, clicks] = await Promise.all([
-            api('/insights/summary'),
-            api('/insights/pages'),
-            api('/insights/companies'),
-            api('/insights/locations'),
-            api('/insights/clicks')
+        const query = `?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
+        [summary, pages, companies, locations, clicks, submissions] = await Promise.all([
+            api(`/insights/summary${query}`),
+            api(`/insights/pages${query}`),
+            api(`/insights/companies${query}`),
+            api(`/insights/locations${query}`),
+            api(`/insights/clicks${query}`),
+            api(`/insights/contact-submissions${query}`)
         ]);
     }
     catch (err) {
@@ -488,7 +596,7 @@ async function loadInsightsPanel() {
   `;
     const rankedList = (rows) => rows.length
         ? `<div class="glass insight-list">${rows.join('')}</div>`
-        : `<div class="glass empty-state">No data yet — insights fill in as visitors browse your live site.</div>`;
+        : `<div class="glass empty-state">No data yet for this period.</div>`;
     body.innerHTML = `
     <div class="stat-grid">
       ${statCard('Unique visitors', summary.uniqueVisitors)}
@@ -496,6 +604,23 @@ async function loadInsightsPanel() {
       ${statCard('Clicks', summary.totalClicks)}
       ${statCard('Active now', summary.activeNow)}
     </div>
+
+    <h3 class="insight-heading" style="color:var(--cyan); display:flex; align-items:center; gap:8px;">
+      Contact Form Submissions
+      ${submissions.length ? '<span class="pulse-dot"></span>' : ''}
+    </h3>
+    <p class="insight-sub">Recent clicks on the contact form submit button (initiated emails).</p>
+    ${rankedList(submissions.map(s => `
+      <div class="insight-row" style="border-left: 2px solid var(--cyan); padding-left: 12px; margin-bottom: 4px;">
+        <div>
+          <span class="insight-row-label" style="font-weight:600;">${escapeHtml(s.org)}</span>
+          <span style="font-size:11px;color:var(--text-dim);display:block;">
+            IP: ${escapeHtml(s.ip)} · ${escapeHtml([s.city, s.region, s.country].filter(Boolean).join(', '))}
+          </span>
+        </div>
+        <span class="insight-row-count">${new Date(s.createdAt).toLocaleString()}</span>
+      </div>
+    `))}
 
     <h3 class="insight-heading">Most-viewed pages</h3>
     <p class="insight-sub">Which section of your site gets the most attention — including from recruiters.</p>
@@ -507,9 +632,9 @@ async function loadInsightsPanel() {
     `))}
 
     <h3 class="insight-heading">Visitor companies (A → Z)</h3>
-    <p class="insight-sub">Best-effort, resolved from IP address. Corporate/VPN traffic often shows a real company name; home connections show an ISP.</p>
+    <p class="insight-sub">Best-effort, resolved from IP address. Corporate/VPN traffic often shows a real company name; home connections show an ISP. Click on a company to see detailed visit timeline.</p>
     ${rankedList(companies.map(c => `
-      <div class="insight-row">
+      <div class="insight-row clickable-company-row" data-company="${escapeAttr(c.company)}">
         <span class="insight-row-label">${escapeHtml(c.company)}</span>
         <span class="insight-row-count">${c.count.toLocaleString()} visit${c.count === 1 ? '' : 's'} · last seen ${new Date(c.lastSeen).toLocaleDateString()}${c.country ? ' · ' + escapeHtml(c.country) : ''}</span>
       </div>
@@ -533,6 +658,81 @@ async function loadInsightsPanel() {
       </div>
     `))}
   `;
+    // Bind click handlers to company rows
+    body.querySelectorAll('.clickable-company-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const companyName = row.dataset.company;
+            if (companyName) {
+                showCompanyDetails(companyName);
+            }
+        });
+    });
+}
+async function showCompanyDetails(companyName) {
+    const modal = document.getElementById('companyModal');
+    const modalName = document.getElementById('modalCompanyName');
+    const modalBody = document.getElementById('modalCompanyBody');
+    modalName.textContent = companyName;
+    modalBody.innerHTML = '<p style="color:var(--text-dim);">Loading company details…</p>';
+    modal.classList.remove('hidden');
+    try {
+        const query = `?org=${encodeURIComponent(companyName)}&start=${encodeURIComponent(currentStart)}&end=${encodeURIComponent(currentEnd)}`;
+        const data = await api(`/insights/company-details${query}`);
+        if (!data.sessions || data.sessions.length === 0) {
+            modalBody.innerHTML = '<p class="empty-state">No details found for this organization for this period.</p>';
+            return;
+        }
+        modalBody.innerHTML = data.sessions.map((session, index) => {
+            const dateStr = new Date(session.firstSeen).toLocaleString();
+            const eventsHtml = session.events.map(event => {
+                const timeStr = new Date(event.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (event.type === 'pageview') {
+                    return `
+            <div class="timeline-item pageview">
+              <span class="timeline-time">${timeStr}</span>
+              Visited page/section: <span class="timeline-badge">${escapeHtml(event.path || 'home')}</span>
+            </div>
+          `;
+                }
+                else {
+                    return `
+            <div class="timeline-item click">
+              <span class="timeline-time">${timeStr}</span>
+              Clicked: <span class="timeline-badge">${escapeHtml(event.label)}</span> ${event.path ? `on page <span class="timeline-badge">${escapeHtml(event.path)}</span>` : ''}
+            </div>
+          `;
+                }
+            }).join('');
+            return `
+        <div class="glass session-card">
+          <div class="session-head-row">
+            <div class="session-title-text">Visitor #${data.sessions.length - index} (Session ID: ${session.sessionId.substring(0, 8)}...)</div>
+            <div class="session-meta-text">
+              <span class="session-meta-item">IP: <span>${escapeHtml(session.ip)}</span></span>
+              <span class="session-meta-item">Location: <span>${escapeHtml([session.city, session.region, session.country].filter(Boolean).join(', '))}</span></span>
+              <span class="session-meta-item">Date: <span>${dateStr}</span></span>
+            </div>
+          </div>
+          ${session.referrer ? `<div class="session-meta-text" style="margin-top:-6px;"><span class="session-meta-item">Referrer: <span style="font-size:11px;">${escapeHtml(session.referrer)}</span></span></div>` : ''}
+          ${session.userAgent ? `<div class="session-meta-text" style="margin-top:-6px;"><span class="session-meta-item">User Agent: <span style="font-size:11px;">${escapeHtml(session.userAgent)}</span></span></div>` : ''}
+          <div class="session-timeline">
+            ${eventsHtml}
+          </div>
+        </div>
+      `;
+        }).join('');
+    }
+    catch (err) {
+        modalBody.innerHTML = `<p class="login-error">Error loading details: ${err.message}</p>`;
+    }
+}
+function bindModalEvents() {
+    const modal = document.getElementById('companyModal');
+    const overlay = document.getElementById('companyModalOverlay');
+    const closeBtn = document.getElementById('closeCompanyModal');
+    const hideModal = () => modal.classList.add('hidden');
+    overlay.addEventListener('click', hideModal);
+    closeBtn.addEventListener('click', hideModal);
 }
 // ---------- Small helpers ----------
 function escapeHtml(str) {
@@ -542,6 +742,7 @@ function escapeHtml(str) {
 }
 function escapeAttr(str) { return escapeHtml(str); }
 // ---------- Boot ----------
+bindModalEvents();
 if (TOKEN) {
     enterDashboard();
 }

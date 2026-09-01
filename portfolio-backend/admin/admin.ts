@@ -154,6 +154,12 @@ async function api<T = any>(path: string, options: RequestInit = {}): Promise<T>
   if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  
+  if (res.status === 401 && path !== '/auth/login') {
+    performLogout();
+    throw new Error('Session expired. Please log in again.');
+  }
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data && data.error) || `Request failed (${res.status})`);
   return data as T;
@@ -191,12 +197,14 @@ document.getElementById('loginForm')!.addEventListener('submit', async (e: Event
   }
 });
 
-document.getElementById('logoutBtn')!.addEventListener('click', () => {
+function performLogout(): void {
   TOKEN = null;
   localStorage.removeItem('admin_token');
-  dashboard.classList.add('hidden');
-  loginScreen.classList.remove('hidden');
-});
+  if (dashboard) dashboard.classList.add('hidden');
+  if (loginScreen) loginScreen.classList.remove('hidden');
+}
+
+document.getElementById('logoutBtn')!.addEventListener('click', performLogout);
 
 function enterDashboard(): void {
   loginScreen.classList.add('hidden');

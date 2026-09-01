@@ -119,6 +119,10 @@ async function api(path, options = {}) {
     if (TOKEN)
         headers.Authorization = `Bearer ${TOKEN}`;
     const res = await fetch(`${API_BASE}${path}`, Object.assign(Object.assign({}, options), { headers }));
+    if (res.status === 401 && path !== '/auth/login') {
+        performLogout();
+        throw new Error('Session expired. Please log in again.');
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok)
         throw new Error((data && data.error) || `Request failed (${res.status})`);
@@ -153,12 +157,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         errorEl.textContent = err.message;
     }
 });
-document.getElementById('logoutBtn').addEventListener('click', () => {
+function performLogout() {
     TOKEN = null;
     localStorage.removeItem('admin_token');
-    dashboard.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-});
+    if (dashboard)
+        dashboard.classList.add('hidden');
+    if (loginScreen)
+        loginScreen.classList.remove('hidden');
+}
+document.getElementById('logoutBtn').addEventListener('click', performLogout);
 function enterDashboard() {
     loginScreen.classList.add('hidden');
     dashboard.classList.remove('hidden');

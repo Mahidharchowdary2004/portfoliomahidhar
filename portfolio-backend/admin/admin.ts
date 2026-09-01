@@ -4,6 +4,14 @@ const API_BASE = '/api';
 
 let TOKEN: string | null = localStorage.getItem('admin_token');
 
+// ---------- Small helpers ----------
+function escapeHtml(str: unknown): string {
+  return String(str ?? '').replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m] as string));
+}
+function escapeAttr(str: unknown): string { return escapeHtml(str); }
+
 type FieldType = 'text' | 'textarea' | 'tags' | 'number' | 'file' | 'select';
 
 interface FieldConfig {
@@ -211,6 +219,7 @@ function enterDashboard(): void {
   dashboard.classList.remove('hidden');
   loadProfilePanel();
   Object.keys(RESOURCES).forEach(key => loadResourcePanel(key));
+  loadMessagesPanel();
   loadInsightsPanel();
 }
 
@@ -847,6 +856,62 @@ async function showCompanyDetails(companyName: string): Promise<void> {
   }
 }
 
+// ---------- Messages panel ----------
+async function loadMessagesPanel(): Promise<void> {
+  const panel = document.getElementById('panel-messages') as HTMLElement;
+  panel.innerHTML = `
+    <div class="panel-head">
+      <div><h2>Messages</h2><p>Contact form submissions from your portfolio.</p></div>
+      <button class="btn btn-ghost btn-small" id="refreshMessages">Refresh</button>
+    </div>
+    <div id="messagesBody">Loading messages…</div>
+  `;
+
+  document.getElementById('refreshMessages')!.addEventListener('click', loadMessagesPanel);
+
+  const body = document.getElementById('messagesBody') as HTMLElement;
+  try {
+    const messages = await api<any[]>('/messages');
+    
+    if (messages.length === 0) {
+      body.innerHTML = '<div class="glass empty-state">No messages found.</div>';
+      return;
+    }
+
+    body.innerHTML = messages.map(msg => `
+      <div class="glass item-card" style="margin-bottom: 16px;">
+        <div class="item-main">
+          <h3 style="display:flex; justify-content:space-between; align-items:center;">
+            <span>${escapeHtml(msg.name)} <span style="font-size:14px; font-weight:normal; color:var(--text-dim);">(&lt;<a href="mailto:${escapeHtml(msg.email)}" style="color:var(--accent); text-decoration:none;">${escapeHtml(msg.email)}</a>&gt;)</span></span>
+            <span style="font-size:12px; color:var(--text-dim); font-weight:normal;">${new Date(msg.createdAt).toLocaleString()}</span>
+          </h3>
+          <div class="message-box" style="margin-top:12px; padding:16px; background:rgba(0,0,0,0.03); border-radius:8px; white-space:pre-wrap;">${escapeHtml(msg.message)}</div>
+        </div>
+        <div class="item-actions" style="margin-top:16px;">
+          <a href="mailto:${escapeHtml(msg.email)}?subject=Re: Portfolio contact" class="btn btn-primary btn-small">Reply</a>
+          <button class="btn btn-danger btn-small" data-delete-msg="${msg._id}">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    body.querySelectorAll<HTMLButtonElement>('[data-delete-msg]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this message? This cannot be undone.')) return;
+        try {
+          await api(`/messages/${btn.dataset.deleteMsg}`, { method: 'DELETE' });
+          toast('Message deleted');
+          loadMessagesPanel(); // Reload after delete
+        } catch (err) {
+          toast((err as Error).message, true);
+        }
+      });
+    });
+
+  } catch (err) {
+    body.innerHTML = `<p class="login-error">${(err as Error).message}</p>`;
+  }
+}
+
 function bindModalEvents(): void {
   const modal = document.getElementById('companyModal') as HTMLElement;
   const overlay = document.getElementById('companyModalOverlay') as HTMLElement;
@@ -857,14 +922,6 @@ function bindModalEvents(): void {
   overlay.addEventListener('click', hideModal);
   closeBtn.addEventListener('click', hideModal);
 }
-
-// ---------- Small helpers ----------
-function escapeHtml(str: unknown): string {
-  return String(str ?? '').replace(/[&<>"']/g, (m) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[m] as string));
-}
-function escapeAttr(str: unknown): string { return escapeHtml(str); }
 
 // ---------- Boot ----------
 bindModalEvents();

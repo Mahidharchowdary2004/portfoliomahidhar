@@ -17,6 +17,7 @@ import uploadRoutes from './routes/upload';
 import trackRoutes from './routes/track';
 import insightsRoutes from './routes/insights';
 import contactRoutes from './routes/contact';
+import messagesRoutes from './routes/messages';
 
 const app = express();
 app.set('trust proxy', true);
@@ -56,6 +57,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/track', trackRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/messages', messagesRoutes);
 
 app.get('/api/health', (_req: Request, res: Response) => res.json({ status: 'ok' }));
 

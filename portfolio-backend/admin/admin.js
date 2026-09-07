@@ -3,6 +3,15 @@
 // API, change this to the full API URL, e.g. 'https://your-api.onrender.com/api'
 const API_BASE = '/api';
 let TOKEN = localStorage.getItem('admin_token');
+
+// ---------- Small helpers ----------
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+
 // ---------- Field configs for every list-based resource ----------
 const RESOURCES = {
     education: {
@@ -113,21 +122,27 @@ const RESOURCES = {
         })
     }
 };
+
 // ---------- API helper ----------
 async function api(path, options = {}) {
-    const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers);
-    if (TOKEN)
-        headers.Authorization = `Bearer ${TOKEN}`;
-    const res = await fetch(`${API_BASE}${path}`, Object.assign(Object.assign({}, options), { headers }));
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+    };
+    if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
+
+    const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+
     if (res.status === 401 && path !== '/auth/login') {
         performLogout();
         throw new Error('Session expired. Please log in again.');
     }
+
     const data = await res.json().catch(() => ({}));
-    if (!res.ok)
-        throw new Error((data && data.error) || `Request failed (${res.status})`);
+    if (!res.ok) throw new Error((data && data.error) || `Request failed (${res.status})`);
     return data;
 }
+
 // ---------- Toast ----------
 function toast(message, isError = false) {
     const el = document.getElementById('toast');
@@ -135,15 +150,18 @@ function toast(message, isError = false) {
     el.className = 'toast show' + (isError ? ' error' : '');
     setTimeout(() => { el.className = 'toast'; }, 2600);
 }
+
 // ---------- Login ----------
 const loginScreen = document.getElementById('loginScreen');
 const dashboard = document.getElementById('dashboard');
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
     const errorEl = document.getElementById('loginError');
     errorEl.textContent = '';
+
     try {
         const data = await api('/auth/login', {
             method: 'POST',
@@ -152,27 +170,29 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         TOKEN = data.token;
         localStorage.setItem('admin_token', TOKEN);
         enterDashboard();
-    }
-    catch (err) {
+    } catch (err) {
         errorEl.textContent = err.message;
     }
 });
+
 function performLogout() {
     TOKEN = null;
     localStorage.removeItem('admin_token');
-    if (dashboard)
-        dashboard.classList.add('hidden');
-    if (loginScreen)
-        loginScreen.classList.remove('hidden');
+    if (dashboard) dashboard.classList.add('hidden');
+    if (loginScreen) loginScreen.classList.remove('hidden');
 }
+
 document.getElementById('logoutBtn').addEventListener('click', performLogout);
+
 function enterDashboard() {
     loginScreen.classList.add('hidden');
     dashboard.classList.remove('hidden');
     loadProfilePanel();
     Object.keys(RESOURCES).forEach(key => loadResourcePanel(key));
+    loadMessagesPanel();
     loadInsightsPanel();
 }
+
 // ---------- Tabs ----------
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -182,6 +202,8 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.getElementById(`panel-${btn.dataset.tab}`).classList.remove('hidden');
     });
 });
+
+// ---------- Profile panel (single document) ----------
 async function loadProfilePanel() {
     const panel = document.getElementById('panel-profile');
     panel.innerHTML = `
@@ -190,14 +212,15 @@ async function loadProfilePanel() {
     </div>
     <div id="profileFormWrap"></div>
   `;
+
     let profile;
     try {
         profile = await api('/profile');
-    }
-    catch (err) {
+    } catch (err) {
         panel.innerHTML += `<p class="login-error">${err.message}</p>`;
         return;
     }
+
     const wrap = document.getElementById('profileFormWrap');
     wrap.innerHTML = `
     <form id="profileForm" class="field-form glass">
@@ -237,7 +260,9 @@ async function loadProfilePanel() {
       </div>
     </form>
   `;
+
     bindFileFields(document.getElementById('profileForm'));
+
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
@@ -262,25 +287,27 @@ async function loadProfilePanel() {
         try {
             await api('/profile', { method: 'PUT', body: JSON.stringify(payload) });
             toast('Profile saved');
-        }
-        catch (err) {
+        } catch (err) {
             toast(err.message, true);
         }
     });
 }
+
 // ---------- Generic resource panels (education, skills, projects, etc.) ----------
 async function loadResourcePanel(key, editingId = null) {
     const config = RESOURCES[key];
     const panel = document.getElementById(`panel-${key}`);
+
     let items = [];
     let loadError = null;
     try {
         items = await api(`/${config.endpoint}`);
-    }
-    catch (err) {
+    } catch (err) {
         loadError = err.message;
     }
+
     const editingItem = editingId ? items.find(i => i._id === editingId) || null : null;
+
     panel.innerHTML = `
     <div class="panel-head">
       <div><h2>${config.title}</h2><p>${config.subtitle}</p></div>
@@ -288,7 +315,9 @@ async function loadResourcePanel(key, editingId = null) {
     ${renderForm(key, config, editingItem)}
     <div id="list-${key}" class="item-list"></div>
   `;
+
     bindForm(key, config, editingId);
+
     const listEl = document.getElementById(`list-${key}`);
     if (loadError) {
         listEl.innerHTML = `<p class="login-error">${loadError}</p>`;
@@ -298,6 +327,7 @@ async function loadResourcePanel(key, editingId = null) {
         listEl.innerHTML = `<div class="glass empty-state">No ${config.title.toLowerCase()} yet — add your first one above.</div>`;
         return;
     }
+
     listEl.innerHTML = items.map(item => {
         const c = config.card(item);
         return `
@@ -314,28 +344,29 @@ async function loadResourcePanel(key, editingId = null) {
       </div>
     `;
     }).join('');
+
     listEl.querySelectorAll('[data-edit]').forEach(btn => {
         btn.addEventListener('click', () => loadResourcePanel(btn.dataset.key, btn.dataset.edit));
     });
     listEl.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Delete this entry? This cannot be undone.'))
-                return;
+            if (!confirm('Delete this entry? This cannot be undone.')) return;
             try {
                 await api(`/${config.endpoint}/${btn.dataset.delete}`, { method: 'DELETE' });
                 toast('Deleted');
                 loadResourcePanel(btn.dataset.key);
-            }
-            catch (err) {
+            } catch (err) {
                 toast(err.message, true);
             }
         });
     });
 }
+
 function renderForm(key, config, editingItem) {
     const fieldsHtml = config.fields.map(f => {
         const value = editingItem ? editingItem[f.name] : '';
-        const displayValue = f.type === 'tags' ? (Array.isArray(value) ? value.join(', ') : '') : (value !== null && value !== void 0 ? value : '');
+        const displayValue = f.type === 'tags' ? (Array.isArray(value) ? value.join(', ') : '') : (value ?? '');
+
         if (f.type === 'file') {
             return `
         <label class="${f.full ? 'full' : ''}">
@@ -349,6 +380,7 @@ function renderForm(key, config, editingItem) {
         </label>
       `;
         }
+
         const inputEl = f.type === 'textarea'
             ? `<textarea name="${f.name}" rows="3">${escapeHtml(displayValue)}</textarea>`
             : f.type === 'select'
@@ -356,8 +388,10 @@ function renderForm(key, config, editingItem) {
           ${(f.options || []).map(opt => `<option value="${escapeAttr(opt)}" ${opt === displayValue ? 'selected' : ''}>${escapeHtml(opt)}</option>`).join('')}
         </select>`
                 : `<input name="${f.name}" type="${f.type === 'number' ? 'number' : 'text'}" value="${escapeAttr(displayValue)}" ${f.required ? 'required' : ''}>`;
+
         return `<label class="${f.full ? 'full' : ''}">${f.label}${inputEl}</label>`;
     }).join('');
+
     return `
     <form id="form-${key}" class="field-form glass" data-editing-id="${editingItem ? editingItem._id : ''}">
       ${fieldsHtml}
@@ -368,65 +402,60 @@ function renderForm(key, config, editingItem) {
     </form>
   `;
 }
+
 // Uploads a single file to the backend, which forwards it to Cloudinary,
 // and returns the hosted URL.
 async function uploadFile(file) {
     const formData = new FormData();
     formData.append('file', file);
+
     const headers = {};
-    if (TOKEN)
-        headers.Authorization = `Bearer ${TOKEN}`;
+    if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
+
     const res = await fetch(`${API_BASE}/upload`, {
         method: 'POST',
         headers, // no Content-Type — the browser sets the multipart boundary itself
         body: formData
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok)
-        throw new Error(data.error || `Upload failed (${res.status})`);
+    if (!res.ok) throw new Error(data.error || `Upload failed (${res.status})`);
     return data.url;
 }
+
 function bindFileFields(form) {
     form.querySelectorAll('.file-upload-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const fieldName = btn.dataset.field;
             const fileInput = form.querySelector(`.file-input-hidden[data-field="${fieldName}"]`);
-            fileInput === null || fileInput === void 0 ? void 0 : fileInput.click();
+            fileInput?.click();
         });
     });
+
     form.querySelectorAll('.file-input-hidden').forEach(fileInput => {
         fileInput.addEventListener('change', async () => {
-            var _a;
             const fieldName = fileInput.dataset.field;
             const statusEl = form.querySelector(`.file-status[data-field-status="${fieldName}"]`);
             const textInput = form.elements.namedItem(fieldName);
-            const file = (_a = fileInput.files) === null || _a === void 0 ? void 0 : _a[0];
-            if (!file || !textInput)
-                return;
-            if (statusEl) {
-                statusEl.textContent = 'Uploading…';
-                statusEl.className = 'file-status';
-            }
+            const file = fileInput.files?.[0];
+            if (!file || !textInput) return;
+
+            if (statusEl) { statusEl.textContent = 'Uploading…'; statusEl.className = 'file-status'; }
             try {
                 const url = await uploadFile(file);
                 textInput.value = url;
-                if (statusEl) {
-                    statusEl.textContent = '✓ Uploaded';
-                    statusEl.className = 'file-status success';
-                }
-            }
-            catch (err) {
-                if (statusEl) {
-                    statusEl.textContent = err.message;
-                    statusEl.className = 'file-status error';
-                }
+                if (statusEl) { statusEl.textContent = '✓ Uploaded'; statusEl.className = 'file-status success'; }
+            } catch (err) {
+                if (statusEl) { statusEl.textContent = err.message; statusEl.className = 'file-status error'; }
             }
         });
     });
 }
+
 function bindForm(key, config, editingId) {
     const form = document.getElementById(`form-${key}`);
+
     bindFileFields(form);
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {};
@@ -434,36 +463,37 @@ function bindForm(key, config, editingId) {
             const raw = form.elements.namedItem(f.name).value;
             if (f.type === 'tags') {
                 payload[f.name] = raw.split(',').map(s => s.trim()).filter(Boolean);
-            }
-            else if (f.type === 'number') {
+            } else if (f.type === 'number') {
                 payload[f.name] = raw === '' ? 0 : Number(raw);
-            }
-            else {
+            } else {
                 payload[f.name] = raw;
             }
         });
+
         try {
             if (editingId) {
                 await api(`/${config.endpoint}/${editingId}`, { method: 'PUT', body: JSON.stringify(payload) });
                 toast('Updated');
-            }
-            else {
+            } else {
                 await api(`/${config.endpoint}`, { method: 'POST', body: JSON.stringify(payload) });
                 toast('Added');
             }
             loadResourcePanel(key);
-        }
-        catch (err) {
+        } catch (err) {
             toast(err.message, true);
         }
     });
+
     const cancelBtn = document.getElementById(`cancelEdit-${key}`);
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => loadResourcePanel(key));
     }
 }
+
+// ---------- Insights panel ----------
 let currentStart = '';
 let currentEnd = '';
+
 async function loadInsightsPanel() {
     const panel = document.getElementById('panel-insights');
     panel.innerHTML = `
@@ -492,93 +522,107 @@ async function loadInsightsPanel() {
 
     <div id="insightsBody">Loading…</div>
   `;
+
     document.getElementById('refreshInsights').addEventListener('click', () => {
         refreshInsightsData();
     });
+
     const filterBtns = panel.querySelectorAll('.filter-btn');
     const customDateWrap = document.getElementById('customDateWrap');
     const customDateFrom = document.getElementById('customDateFrom');
     const customDateTo = document.getElementById('customDateTo');
+
     // Set date picker defaults to local today
     const todayLocal = new Date();
     const yyyy = todayLocal.getFullYear();
     const mm = String(todayLocal.getMonth() + 1).padStart(2, '0');
     const dd = String(todayLocal.getDate()).padStart(2, '0');
     const todayStr = `${yyyy}-${mm}-${dd}`;
+
     customDateFrom.value = todayStr;
     customDateFrom.max = todayStr;
     customDateTo.value = todayStr;
     customDateTo.max = todayStr;
+
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+
             const range = btn.dataset.range;
             if (range === 'custom') {
                 customDateWrap.classList.remove('hidden');
-            }
-            else {
+            } else {
                 customDateWrap.classList.add('hidden');
             }
+
             updateDateRangeAndFetch();
         });
     });
+
     customDateFrom.addEventListener('change', () => {
-        // Ensure From date is not after To date
         if (customDateFrom.value && customDateTo.value && customDateFrom.value > customDateTo.value) {
             customDateTo.value = customDateFrom.value;
         }
         updateDateRangeAndFetch();
     });
+
     customDateTo.addEventListener('change', () => {
-        // Ensure To date is not before From date
         if (customDateFrom.value && customDateTo.value && customDateTo.value < customDateFrom.value) {
             customDateFrom.value = customDateTo.value;
         }
         updateDateRangeAndFetch();
     });
+
     // Perform initial fetch
     updateDateRangeAndFetch();
 }
+
 function updateDateRangeAndFetch() {
     const panel = document.getElementById('panel-insights');
     const activeBtn = panel.querySelector('.filter-btn.active');
-    const range = (activeBtn === null || activeBtn === void 0 ? void 0 : activeBtn.dataset.range) || 'today';
+    const range = (activeBtn && activeBtn.dataset.range) || 'today';
+
     let start = '';
     let end = '';
+
     const now = new Date();
+
     if (range === 'today') {
         start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).toISOString();
         end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).toISOString();
-    }
-    else if (range === 'yesterday') {
+    } else if (range === 'yesterday') {
         const yesterday = new Date(now);
         yesterday.setDate(now.getDate() - 1);
         start = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0, 0).toISOString();
         end = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999).toISOString();
-    }
-    else if (range === 'custom') {
+    } else if (range === 'custom') {
         const customDateFrom = document.getElementById('customDateFrom');
         const customDateTo = document.getElementById('customDateTo');
         const fromStr = customDateFrom.value;
         const toStr = customDateTo.value;
-        if (!fromStr || !toStr)
-            return;
+        if (!fromStr || !toStr) return;
+
         const [fY, fM, fD] = fromStr.split('-').map(Number);
         const [tY, tM, tD] = toStr.split('-').map(Number);
         start = new Date(fY, fM - 1, fD, 0, 0, 0, 0).toISOString();
         end = new Date(tY, tM - 1, tD, 23, 59, 59, 999).toISOString();
     }
+
     currentStart = start;
     currentEnd = end;
+
     fetchAndRenderInsights(start, end);
 }
+
 function refreshInsightsData() {
     fetchAndRenderInsights(currentStart, currentEnd);
 }
+
 async function fetchAndRenderInsights(start, end) {
     const body = document.getElementById('insightsBody');
     body.innerHTML = '<div style="color:var(--text-dim);">Loading insights data…</div>';
+
     let summary, pages, companies, locations, clicks, submissions;
     try {
         const query = `?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
@@ -590,20 +634,23 @@ async function fetchAndRenderInsights(start, end) {
             api(`/insights/clicks${query}`),
             api(`/insights/contact-submissions${query}`)
         ]);
-    }
-    catch (err) {
+    } catch (err) {
         body.innerHTML = `<p class="login-error">${err.message}</p>`;
         return;
     }
+
     const statCard = (label, value) => `
     <div class="glass stat-card">
       <div class="stat-value">${value.toLocaleString()}</div>
       <div class="stat-label">${label}</div>
     </div>
   `;
-    const rankedList = (rows) => rows.length
-        ? `<div class="glass insight-list">${rows.join('')}</div>`
-        : `<div class="glass empty-state">No data yet for this period.</div>`;
+
+    const rankedList = (rows) =>
+        rows.length
+            ? `<div class="glass insight-list">${rows.join('')}</div>`
+            : `<div class="glass empty-state">No data yet for this period.</div>`;
+
     body.innerHTML = `
     <div class="stat-grid">
       ${statCard('Unique visitors', summary.uniqueVisitors)}
@@ -665,6 +712,7 @@ async function fetchAndRenderInsights(start, end) {
       </div>
     `))}
   `;
+
     // Bind click handlers to company rows
     body.querySelectorAll('.clickable-company-row').forEach(row => {
         row.addEventListener('click', () => {
@@ -675,20 +723,25 @@ async function fetchAndRenderInsights(start, end) {
         });
     });
 }
+
 async function showCompanyDetails(companyName) {
     const modal = document.getElementById('companyModal');
     const modalName = document.getElementById('modalCompanyName');
     const modalBody = document.getElementById('modalCompanyBody');
+
     modalName.textContent = companyName;
     modalBody.innerHTML = '<p style="color:var(--text-dim);">Loading company details…</p>';
     modal.classList.remove('hidden');
+
     try {
         const query = `?org=${encodeURIComponent(companyName)}&start=${encodeURIComponent(currentStart)}&end=${encodeURIComponent(currentEnd)}`;
         const data = await api(`/insights/company-details${query}`);
+
         if (!data.sessions || data.sessions.length === 0) {
             modalBody.innerHTML = '<p class="empty-state">No details found for this organization for this period.</p>';
             return;
         }
+
         modalBody.innerHTML = data.sessions.map((session, index) => {
             const dateStr = new Date(session.firstSeen).toLocaleString();
             const eventsHtml = session.events.map(event => {
@@ -700,8 +753,7 @@ async function showCompanyDetails(companyName) {
               Visited page/section: <span class="timeline-badge">${escapeHtml(event.path || 'home')}</span>
             </div>
           `;
-                }
-                else {
+                } else {
                     return `
             <div class="timeline-item click">
               <span class="timeline-time">${timeStr}</span>
@@ -710,6 +762,7 @@ async function showCompanyDetails(companyName) {
           `;
                 }
             }).join('');
+
             return `
         <div class="glass session-card">
           <div class="session-head-row">
@@ -728,31 +781,83 @@ async function showCompanyDetails(companyName) {
         </div>
       `;
         }).join('');
-    }
-    catch (err) {
+
+    } catch (err) {
         modalBody.innerHTML = `<p class="login-error">Error loading details: ${err.message}</p>`;
     }
 }
+
+// ---------- Messages panel ----------
+async function loadMessagesPanel() {
+    const panel = document.getElementById('panel-messages');
+    panel.innerHTML = `
+    <div class="panel-head">
+      <div><h2>Messages</h2><p>Contact form submissions from your portfolio.</p></div>
+      <button class="btn btn-ghost btn-small" id="refreshMessages">Refresh</button>
+    </div>
+    <div id="messagesBody">Loading messages…</div>
+  `;
+
+    document.getElementById('refreshMessages').addEventListener('click', loadMessagesPanel);
+
+    const body = document.getElementById('messagesBody');
+    try {
+        const messages = await api('/messages');
+
+        if (messages.length === 0) {
+            body.innerHTML = '<div class="glass empty-state">No messages found.</div>';
+            return;
+        }
+
+        body.innerHTML = messages.map(msg => `
+      <div class="glass item-card" style="margin-bottom: 16px;">
+        <div class="item-main">
+          <h3 style="display:flex; justify-content:space-between; align-items:center;">
+            <span>${escapeHtml(msg.name)} <span style="font-size:14px; font-weight:normal; color:var(--text-dim);">(&lt;<a href="mailto:${escapeHtml(msg.email)}" style="color:var(--accent); text-decoration:none;">${escapeHtml(msg.email)}</a>&gt;)</span></span>
+            <span style="font-size:12px; color:var(--text-dim); font-weight:normal;">${new Date(msg.createdAt).toLocaleString()}</span>
+          </h3>
+          <div class="message-box" style="margin-top:12px; padding:16px; background:rgba(0,0,0,0.03); border-radius:8px; white-space:pre-wrap;">${escapeHtml(msg.message)}</div>
+        </div>
+        <div class="item-actions" style="margin-top:16px;">
+          <a href="mailto:${escapeHtml(msg.email)}?subject=Re: Portfolio contact" class="btn btn-primary btn-small">Reply</a>
+          <button class="btn btn-danger btn-small" data-delete-msg="${msg._id}">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+        body.querySelectorAll('[data-delete-msg]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('Delete this message? This cannot be undone.')) return;
+                try {
+                    await api(`/messages/${btn.dataset.deleteMsg}`, { method: 'DELETE' });
+                    toast('Message deleted');
+                    loadMessagesPanel(); // Reload after delete
+                } catch (err) {
+                    toast(err.message, true);
+                }
+            });
+        });
+
+    } catch (err) {
+        body.innerHTML = `<p class="login-error">${err.message}</p>`;
+    }
+}
+
 function bindModalEvents() {
     const modal = document.getElementById('companyModal');
     const overlay = document.getElementById('companyModalOverlay');
     const closeBtn = document.getElementById('closeCompanyModal');
+
     const hideModal = () => modal.classList.add('hidden');
+
     overlay.addEventListener('click', hideModal);
     closeBtn.addEventListener('click', hideModal);
 }
-// ---------- Small helpers ----------
-function escapeHtml(str) {
-    return String(str !== null && str !== void 0 ? str : '').replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[m]));
-}
-function escapeAttr(str) { return escapeHtml(str); }
+
 // ---------- Boot ----------
 bindModalEvents();
 if (TOKEN) {
     enterDashboard();
-}
-else {
+} else {
     loginScreen.classList.remove('hidden');
 }

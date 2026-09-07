@@ -45,48 +45,68 @@ export default function Projects() {
 
         <div className="projects-grid">
           {visibleProjects.map((project, i) => (
-            <Reveal className="glass project-card" key={project._id ?? i}>
-              <div className="project-preview">
-                {project.imageUrl
-                  ? <img src={project.imageUrl} alt={`${project.name} preview`} />
-                  : <span className="preview-glyph">{project.icon || '⌁'}</span>}
-              </div>
-              <div className="project-body">
-                {project.category && <span className="project-category">{project.category}</span>}
-                <h3>{project.name}</h3>
-                <p>{project.description}</p>
-                <div className="tag-row">
-                  {project.tags.map(tag => <span className="tag" key={tag}>{tag}</span>)}
-                </div>
-                <div className="project-links">
-                  {project.codeUrl && (
-                    <a
-                      className="project-link-btn code"
-                      href={project.codeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => track('click', 'projects', `project-code:${project.name}`)}
-                    >
-                      <CodeIcon /> Code
-                    </a>
-                  )}
-                  {project.liveUrl && (
-                    <a
-                      className="project-link-btn live"
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => track('click', 'projects', `project-live:${project.name}`)}
-                    >
-                      <LiveIcon /> Live
-                    </a>
-                  )}
-                </div>
-              </div>
-            </Reveal>
+            <ProjectCard project={project} index={i} key={project._id ?? i} />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function ProjectCard({ project, index }: { project: any; index: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = (project.description || '').length > 120;
+
+  return (
+    <Reveal className="glass project-card" key={project._id ?? index}>
+      <div className="project-preview">
+        {project.imageUrl
+          ? <img src={project.imageUrl} alt={`${project.name} preview`} />
+          : <span className="preview-glyph">{project.icon || '⌁'}</span>}
+      </div>
+      <div className="project-body">
+        {project.category && <span className="project-category">{project.category}</span>}
+        <h3>{project.name}</h3>
+        <p className={expanded ? 'expanded' : ''}>
+          {project.description}
+        </p>
+        {isLong && (
+          <button
+            type="button"
+            className="read-more-btn"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? 'Show less ↑' : 'Read more ↓'}
+          </button>
+        )}
+        <div className="tag-row">
+          {project.tags?.map((tag: string) => <span className="tag" key={tag}>{tag}</span>)}
+        </div>
+        <div className="project-links">
+          {project.codeUrl && (
+            <a
+              className="project-link-btn code"
+              href={project.codeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track('click', 'projects', `project-code:${project.name}`)}
+            >
+              <CodeIcon /> Code
+            </a>
+          )}
+          {project.liveUrl && (
+            <a
+              className="project-link-btn live"
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track('click', 'projects', `project-live:${project.name}`)}
+            >
+              <LiveIcon /> Live
+            </a>
+          )}
+        </div>
+      </div>
+    </Reveal>
   );
 }
